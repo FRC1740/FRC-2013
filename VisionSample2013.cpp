@@ -56,7 +56,7 @@ const double yMin[YMINSIZE] = {.4, .6, .05, .05, .05, .05, .05, .05, .05, .05, .
 								.05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05,
 								.05, .05, .6, 0};
 
-class VisionSample2012 : public SimpleRobot
+class RobotMain : public SimpleRobot
 {
 	//Structure to represent the scores for the various tests used for target identification
 	struct Scores {
@@ -74,7 +74,7 @@ class VisionSample2012 : public SimpleRobot
 	Scores *scores;
 
 public:
-	VisionSample2012(void):
+	RobotMain(void):
 		myRobot(1, 2),	// these must be initialized in the same order
 		leftStick(1),		// as they are declared above.
 		rightStick(2)
@@ -304,5 +304,5 @@ public:
 	}		
 };
 
-START_ROBOT_CLASS(VisionSample2012);
+START_ROBOT_CLASS(RobotMain);
 
