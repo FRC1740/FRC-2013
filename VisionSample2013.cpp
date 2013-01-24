@@ -2,7 +2,11 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
- 
+#include "spike.cpp"
+
+
+// Prototype declarations go here
+//class spikeRelay;
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
  * by a LED ring light (similar to the model from FIRSTChoice). The camera sensitivity
@@ -152,6 +156,8 @@ public:
 	 */
 	void OperatorControl(void)
 	{
+		spikeRelay *spikeTurret = new spikeRelay;
+		spikeTurret->powerChange(true);
 		myRobot.SetSafetyEnabled(false);
 		while (IsOperatorControl())
 		{
