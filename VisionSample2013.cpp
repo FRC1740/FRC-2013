@@ -77,7 +77,6 @@ public:
 		rightStick(2)
 	{
 		myRobot.SetExpiration(0.1);
-		printf("starting up VisionSample2012");
 		myRobot.SetSafetyEnabled(false);
 	}
 
@@ -91,6 +90,7 @@ public:
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 		};												//Particle filter criteria, used to filter out small particles
 //		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+		printf("we are in autonomous\n");
 		
 		while (IsAutonomous() && IsEnabled()) {
             /**
@@ -99,7 +99,7 @@ public:
              * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
              */
 			ColorImage *image;
-			printf("we are in autonomous, running the loop, trying to do vision processing");
+		
 			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
 
 //			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
@@ -155,11 +155,11 @@ public:
 	 */
 	void OperatorControl(void)
 	{
-		printf("starting Teleop");
-		spikeRelay *spikeTurret = new spikeRelay;
+		printf("starting Teleop\n");
+		mySpike *spikeTurret = new mySpike;
 		spikeTurret->powerChange(true);
 		myRobot.SetSafetyEnabled(false);
-		printf("we are in teleop, accepting joystick input now");
+		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())
 		{
 			myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better.
@@ -205,7 +205,6 @@ public:
 		double rectLong, rectShort, idealAspectRatio, aspectRatio;
 		idealAspectRatio = outer ? (62/29) : (62/20);	//Dimensions of goal opening + 4 inches on all 4 sides for reflective tape
 		
-		printf("attemping to check the aspect ratio");
 		imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_LONG_SIDE, &rectLong);
 		imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &rectShort);
 		
@@ -231,7 +230,6 @@ public:
 	bool scoreCompare(Scores scores, bool outer){
 		bool isTarget = true;
 		
-		printf("comparing the scores to see if it is a target");
 		isTarget &= scores.rectangularity > RECTANGULARITY_LIMIT;
 		if(outer){
 			isTarget &= scores.aspectRatioOuter > ASPECT_RATIO_LIMIT;
@@ -252,7 +250,6 @@ public:
 	 * @return The rectangularity score (0-100)
 	 */
 	double scoreRectangularity(ParticleAnalysisReport *report){
-		printf("are we dealing with a real rectange?");
 		if(report->boundingRect.width*report->boundingRect.height !=0){
 			return 100*report->particleArea/(report->boundingRect.width*report->boundingRect.height);
 		} else {
@@ -271,7 +268,6 @@ public:
 	 * @return The X Edge Score (0-100)
 	 */
 	double scoreXEdge(BinaryImage *image, ParticleAnalysisReport *report){
-		printf("looking for the \"best\" rectangle based on the X axis");
 		double total = 0;
 		LinearAverages *averages = imaqLinearAverages2(image->GetImaqImage(), IMAQ_COLUMN_AVERAGES, report->boundingRect);
 		for(int i=0; i < (averages->columnCount); i++){
@@ -297,7 +293,6 @@ public:
 	 */
 	double scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report){
 		double total = 0;
-		printf("looking for the \"best\" rectangle based on the Y axis");
 		LinearAverages *averages = imaqLinearAverages2(image->GetImaqImage(), IMAQ_ROW_AVERAGES, report->boundingRect);
 		for(int i=0; i < (averages->rowCount); i++){
 			if(yMin[i*(YMINSIZE-1)/averages->rowCount] < averages->rowAverages[i] 
