@@ -2,11 +2,8 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
-#include "spike.cpp"
+// #include "spike.cpp"
 
-
-// Prototype declarations go here
-//class spikeRelay;
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
  * by a LED ring light (similar to the model from FIRSTChoice). The camera sensitivity
@@ -31,8 +28,8 @@
 
 //Camera constants used for distance calculation
 #define X_IMAGE_RES 320		//X Image resolution in pixels, should be 160, 320 or 640
-#define VIEW_ANGLE 48		//Axis 206 camera
-//#define VIEW_ANGLE 43.5  //Axis M1011 camera
+//#define VIEW_ANGLE 48		//Axis 206 camera
+#define VIEW_ANGLE 43.5  //Axis M1011 camera
 #define PI 3.141592653
 
 //Score limits used for target identification
@@ -56,7 +53,7 @@ const double yMin[YMINSIZE] = {.4, .6, .05, .05, .05, .05, .05, .05, .05, .05, .
 								.05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05, .05,
 								.05, .05, .6, 0};
 
-class RobotMain : public SimpleRobot
+class VisionSample2012 : public SimpleRobot
 {
 	//Structure to represent the scores for the various tests used for target identification
 	struct Scores {
@@ -74,7 +71,7 @@ class RobotMain : public SimpleRobot
 	Scores *scores;
 
 public:
-	RobotMain(void):
+	VisionSample2012(void):
 		myRobot(1, 2),	// these must be initialized in the same order
 		leftStick(1),		// as they are declared above.
 		rightStick(2)
@@ -92,7 +89,7 @@ public:
 		ParticleFilterCriteria2 criteria[] = {
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 		};												//Particle filter criteria, used to filter out small particles
-		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+//		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		
 		while (IsAutonomous() && IsEnabled()) {
             /**
@@ -101,9 +98,9 @@ public:
              * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
              */
 			ColorImage *image;
-//			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
+			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
 
-			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+//			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
 			//thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
@@ -156,8 +153,8 @@ public:
 	 */
 	void OperatorControl(void)
 	{
-		spikeRelay *spikeTurret = new spikeRelay;
-		spikeTurret->powerChange(true);
+//		spikeRelay *spikeTurret = new spikeRelay;
+//		spikeTurret->powerChange(true);
 		myRobot.SetSafetyEnabled(false);
 		while (IsOperatorControl())
 		{
@@ -304,5 +301,5 @@ public:
 	}		
 };
 
-START_ROBOT_CLASS(RobotMain);
+START_ROBOT_CLASS(VisionSample2012);
 
