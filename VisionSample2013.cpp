@@ -2,7 +2,7 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
-// #include "spike.cpp"
+#include "spike.cpp"
 
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
@@ -153,8 +153,8 @@ public:
 	 */
 	void OperatorControl(void)
 	{
-//		spikeRelay *spikeTurret = new spikeRelay;
-//		spikeTurret->powerChange(true);
+		spikeRelay *spikeTurret = new spikeRelay;
+		spikeTurret->powerChange(true);
 		myRobot.SetSafetyEnabled(false);
 		while (IsOperatorControl())
 		{

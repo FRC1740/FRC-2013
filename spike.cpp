@@ -1,4 +1,4 @@
-/* #include "WPILib.h"
+#include "WPILib.h"
 
 class spikeRelay {
 
@@ -10,4 +10,4 @@ class spikeRelay {
 		printf("testing: class spike, function powerChange");
 	}
 };
-*/
+/* */
