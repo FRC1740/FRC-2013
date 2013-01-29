@@ -2,7 +2,7 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
-#include "spike.cpp"
+#include "Turret.cpp"
 
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
@@ -156,8 +156,8 @@ public:
 	void OperatorControl(void)
 	{
 		printf("starting Teleop\n");
-		mySpike *spikeTurret = new mySpike;
-		spikeTurret->powerChange(true);
+		Turret *spikeTurret = new Turret;
+		spikeTurret->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())

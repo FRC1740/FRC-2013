@@ -31,8 +31,8 @@ else
 MODE_DIR := NonDebug
 endif
 OBJ_DIR := .
-WS_ROOT_DIR := C:/Users/Ledyard/Desktop/WindRiverprojects
-PRJ_ROOT_DIR := $(WS_ROOT_DIR)/Robot_2013
+WS_ROOT_DIR := C:/WindRiver/workspace
+PRJ_ROOT_DIR := C:/Users/hjax/Desktop/robo/Robot_2013
 
 
 
@@ -166,17 +166,17 @@ SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.o : $(PRJ_
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
+SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o : $(PRJ_ROOT_DIR)/Turret.cpp $(FORCE_FILE_BUILD)
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/VisionSample2013.o : $(PRJ_ROOT_DIR)/VisionSample2013.cpp $(FORCE_FILE_BUILD)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
-SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/spike.o : $(PRJ_ROOT_DIR)/spike.cpp $(FORCE_FILE_BUILD)
-	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
-
-
 OBJECTS_SimpleTemplate_partialImage = SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.o \
-	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/VisionSample2013.o \
-	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/spike.o
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o \
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/VisionSample2013.o
 
 SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage.o : $(OBJECTS_SimpleTemplate_partialImage)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc -r -nostdlib -Wl,-X  -o "$@" $(OBJECTS_SimpleTemplate_partialImage) $(LIBPATH) $(LIBS) $(ADDED_LIBPATH) $(ADDED_LIBS)  && if [ "$(EXPAND_DBG)" = "1" ]; then plink "$@";fi
@@ -190,7 +190,7 @@ SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage_clean :
 
 force : 
 
-DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/VisionSample2013.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/spike.d
+DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/VisionSample2013.d
 -include $(DEP_FILES)
 
 

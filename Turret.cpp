@@ -15,10 +15,10 @@ public:
 		printf("testing: class Turret, function cycle");
 		int foo = spike.Get();
 		printf("Turret: spike status: %d\n", foo);
-		// spike.Set(Relay.Value.kForward);
+		spike.Set(Relay::kForward);
 		printf("Turret: wait 5 sec...\n");
 		Wait(5);
-		// spike.Set(Relay.Value.kReverse);
+		spike.Set(Relay::kReverse);
 		printf("Turret: Wait 5 more sec...\n");
 		Wait(5);
 		printf("Turret: Exiting!\n");
