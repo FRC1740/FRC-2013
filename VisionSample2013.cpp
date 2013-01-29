@@ -69,6 +69,7 @@ class VisionSample2012 : public SimpleRobot
 	Joystick leftStick; // left joystick
 	Joystick rightStick; // right joystick
 	Scores *scores;
+	Turret *spikeTurret;
 
 public:
 	VisionSample2012(void):
@@ -76,6 +77,7 @@ public:
 		leftStick(1),		// as they are declared above.
 		rightStick(2)
 	{
+		spikeTurret = new Turret;
 		myRobot.SetExpiration(0.1);
 		myRobot.SetSafetyEnabled(false);
 	}
@@ -156,17 +158,32 @@ public:
 	void OperatorControl(void)
 	{
 		printf("starting Teleop\n");
-		Turret *spikeTurret = new Turret;
 		spikeTurret->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())
 		{
-			myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better.
+			myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
+			if (leftStick.GetButton(Joystick::kTriggerButton) == true){
+				spikeTurret->extend();
+			}
+			else if (rightStick.GetButton(Joystick::kTriggerButton) == true){
+				spikeTurret->retract();
+			}
+			else{
+				spikeTurret->off();
+			}
 			Wait(0.005);				// wait for a motor update time
 		}
 	}
-	
+
+	void disabled(void)
+	{
+		printf("I\'m Disabled!!\n");
+		delete spikeTurret;
+		//while (IsDisabled()){	
+		//}//	
+		}
 	/**
 	 * Computes the estimated distance to a target using the height of the particle in the image. For more information and graphics
 	 * showing the math behind this approach see the Vision Processing section of the ScreenStepsLive documentation.
