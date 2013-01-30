@@ -69,7 +69,8 @@ class Robot_2013 : public SimpleRobot
 	Joystick leftStick; // left joystick
 	Joystick rightStick; // right joystick
 	Scores *scores;
-	Turret *spikeTurret;
+	Lifter *spikeLifter;
+	Shooter *frisbeeShooter;
 
 public:
 	Robot_2013(void):
@@ -77,7 +78,8 @@ public:
 		leftStick(1),		// as they are declared above.
 		rightStick(2)
 	{
-		spikeTurret = new Turret;
+		spikeLifter = new Lifter;
+		frisbeeShooter = new Shooter;
 		myRobot.SetExpiration(0.1);
 		myRobot.SetSafetyEnabled(false);
 	}
@@ -93,7 +95,13 @@ public:
 		};												//Particle filter criteria, used to filter out small particles
 //		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
-		
+	
+		// Reset the actuator for the lifter and do a shot
+		spikeLifter->lower();
+		Wait(3);
+		spikeLifter->off();
+		frisbeeShooter->fire();
+
 		while (IsAutonomous() && IsEnabled()) {
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
@@ -157,21 +165,40 @@ public:
 	 */
 	void OperatorControl(void)
 	{
+		bool spikeOn = false;
+		int outputPrinted = 0;
 		printf("starting Teleop\n");
-		spikeTurret->cycle_linear_actuator(true);
+//		spikeLifter->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())
 		{
 			myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
-			if (leftStick.GetButton(Joystick::kTriggerButton) == true){
-				spikeTurret->extend();
+			if (rightStick.GetRawButton(11) == true){
+				spikeLifter->raise();
+				if (outputPrinted != 1){
+					printf("extending the relay\n");
+					outputPrinted = 1;
+				}
+				spikeOn = true;
 			}
-			else if (rightStick.GetButton(Joystick::kTriggerButton) == true){
-				spikeTurret->retract();
+			else if(rightStick.GetRawButton(10) == true){
+				spikeLifter->lower();
+				if (outputPrinted != 2){
+					printf("retracting the relay\n");
+					outputPrinted = 2;
+				}
+				spikeOn = true;
 			}
-			else{
-				spikeTurret->off();
+			else {
+				if (spikeOn){
+					spikeLifter->off();
+					if (outputPrinted != 3){
+						printf("stopping the spike\n");
+						outputPrinted = 3;
+					}
+					spikeOn = false;
+				}
 			}
 			Wait(0.005);				// wait for a motor update time
 		}
@@ -180,7 +207,7 @@ public:
 	void disabled(void)
 	{
 		printf("I\'m Disabled!!\n");
-		delete spikeTurret;
+		delete spikeLifter;
 		//while (IsDisabled()){	
 		//}//	
 		}

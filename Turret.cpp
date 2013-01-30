@@ -1,39 +1,59 @@
 #include "WPILib.h"
 
-class Turret {
+class Lifter {
 	
-	Relay spike;
+	Relay spikeLifter;
 	
 public:
 
-	Turret(void):
-		spike(1)
+	Lifter(void):
+		spikeLifter(1)
 	{
 	}
+
+/* 
 	void cycle_linear_actuator(bool state) {
 
-		printf("testing: class Turret, function cycle");
-		int foo = spike.Get();
-		printf("Turret: spike status: %d\n", foo);
-		extend();			// Extend
-		printf("Turret: wait 5 sec...\n");
+		printf("testing: class Lifter, function cycle");
+		int foo = spikeLifter.Get();
+		printf("Lifter: spikeLifter status: %d\n", foo);
+		raise();			// Extend
+		printf("Lifter: wait 5 sec...\n");
 		Wait(5);
-		retract();			// Retract
-		printf("Turret: Wait 5 more sec...\n");
+		lower();			// Retract
+		printf("Lifter: Wait 5 more sec...\n");
 		Wait(5);
 		off();
-		printf("Turret: Exiting!\n");
+		printf("Lifter: Exiting!\n");
 	}
-	void extend(void){
-		printf("extending the relay");
-		spike.Set(Relay::kForward);
+*/
+	void raise(void){
+		spikeLifter.Set(Relay::kForward);
 	}
-	void retract(void){
-		printf("retracting the relay");
-		spike.Set(Relay::kReverse);
+	void lower(void){
+		spikeLifter.Set(Relay::kReverse);
 	}
 	void off(void){
-		printf("stopping the spike");
-		spike.Set(Relay::kOff);
+		spikeLifter.Set(Relay::kOff);
+	}
+};
+
+class Shooter {
+	Victor Torquey;
+	Victor Quickly;
+public:
+	
+	Shooter(void):
+		Torquey(3),
+		Quickly(4)
+	{
+	}
+	void fire(void){ // Rev up and fire
+		Torquey.Set(0.5);
+		Wait(5);
+		Torquey.Set(0);
+		Quickly.Set(1);
+		Wait(5);
+		Quickly.Set(0);
 	}
 };
