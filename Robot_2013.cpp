@@ -3,6 +3,7 @@
 #include "Vision/BinaryImage.h"
 #include "Math.h"
 #include "Turret.cpp"
+#include "Loader.cpp"
 
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
@@ -71,6 +72,7 @@ class Robot_2013 : public SimpleRobot
 	Scores *scores;
 	Lifter *spikeLifter;
 	Shooter *frisbeeShooter;
+	Limiter *Loader;
 
 public:
 	Robot_2013(void):
@@ -80,6 +82,7 @@ public:
 	{
 		spikeLifter = new Lifter;
 		frisbeeShooter = new Shooter;
+		Loader = new Limiter;
 		myRobot.SetExpiration(0.1);
 		myRobot.SetSafetyEnabled(false);
 	}
@@ -167,13 +170,21 @@ public:
 	{
 		bool spikeOn = false;
 		int outputPrinted = 0;
+		bool dontMove = false;
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())
 		{
-			myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
+			dontMove = false;
+			if (Loader->checkLimit()) {
+				myRobot.StopMotor();
+				dontMove = true;
+			}
+			if (not dontMove){
+				myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
+			}
 			if (rightStick.GetRawButton(11) == true){
 				spikeLifter->raise();
 				if (outputPrinted != 1){

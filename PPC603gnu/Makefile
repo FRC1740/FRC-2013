@@ -166,6 +166,10 @@ SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.o : $(PRJ_
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
+SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Loader.o : $(PRJ_ROOT_DIR)/Loader.cpp $(FORCE_FILE_BUILD)
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.o : $(PRJ_ROOT_DIR)/Robot_2013.cpp $(FORCE_FILE_BUILD)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
@@ -175,6 +179,7 @@ SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o : $(PRJ_ROOT
 
 
 OBJECTS_SimpleTemplate_partialImage = SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.o \
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Loader.o \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.o \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o
 
@@ -190,7 +195,8 @@ SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage_clean :
 
 force : 
 
-DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.d
+DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Loader.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.d \
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.d
 -include $(DEP_FILES)
 
 
