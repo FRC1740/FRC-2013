@@ -169,44 +169,41 @@ public:
 	void OperatorControl(void)
 	{
 		bool spikeOn = false;
-		int outputPrinted = 0;
-		bool dontMove = false;
+		int debugOutput = 0;
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
 		while (IsOperatorControl())
 		{
-			dontMove = false;
 			if (Loader->checkLimit()) {
 				myRobot.StopMotor();
-				dontMove = true;
 			}
-			if (not dontMove){
+			else {
 				myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
 			}
 			if (rightStick.GetRawButton(11) == true){
 				spikeLifter->raise();
-				if (outputPrinted != 1){
+				if (debugOutput != 1){
 					printf("extending the relay\n");
-					outputPrinted = 1;
+					debugOutput = 1;
 				}
 				spikeOn = true;
 			}
 			else if(rightStick.GetRawButton(10) == true){
 				spikeLifter->lower();
-				if (outputPrinted != 2){
+				if (debugOutput != 2){
 					printf("retracting the relay\n");
-					outputPrinted = 2;
+					debugOutput = 2;
 				}
 				spikeOn = true;
 			}
 			else {
 				if (spikeOn){
 					spikeLifter->off();
-					if (outputPrinted != 3){
+					if (debugOutput != 3){
 						printf("stopping the spike\n");
-						outputPrinted = 3;
+						debugOutput = 3;
 					}
 					spikeOn = false;
 				}
