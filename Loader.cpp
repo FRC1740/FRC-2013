@@ -4,6 +4,8 @@
 class Limiter {
 	
 	DigitalInput Limit;
+//	Victor Grab;
+//	Victor Lift;
 	
 public:
 	Limiter(void):

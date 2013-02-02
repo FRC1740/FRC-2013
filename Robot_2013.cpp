@@ -5,6 +5,10 @@
 #include "Turret.cpp"
 #include "Loader.cpp"
 #include "CameraCode.cpp"
+#include "Robot_2013.h"
+//#include "DashBoardControl.cpp"
+
+// Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
 
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
@@ -33,34 +37,38 @@
 class Robot_2013 : public SimpleRobot
 {
 	//Structure to represent the scores for the various tests used for target identification
-	struct Scores {
+/*	struct Scores {
 		double rectangularity;
 		double aspectRatioInner;
 		double aspectRatioOuter;
 		double xEdge;
 		double yEdge;
 
-	};
+	};*/
 	
 	RobotDrive myRobot; // robot drive system
 	Joystick leftStick; // left joystick
 	Joystick rightStick; // right joystick
+	Joystick codriverStick; // stick for the co-driver
 	Scores *scores;
 	Lifter *spikeLifter;
 	Shooter *frisbeeShooter;
 	Limiter *Loader;
 	cameraCode *cameraFunctions;
+//	dashboardControl *DBControl;
 
 public:
 	Robot_2013(void):
-		myRobot(1, 2),	// these must be initialized in the same order
-		leftStick(1),		// as they are declared above.
-		rightStick(2)
+		myRobot(rightDrivePort, leftDrivePort),	// these must be initialized in the same order
+		leftStick(leftStickPort),		// as they are declared above.
+		rightStick(rightStickPort),
+		codriverStick(codriverStickPort)
 	{
 		spikeLifter = new Lifter;
 		frisbeeShooter = new Shooter;
 		Loader = new Limiter;
 		cameraFunctions = new cameraCode;
+//		DBControl = new dashboardControl;
 		myRobot.SetExpiration(0.1);
 		myRobot.SetSafetyEnabled(false);
 	}
@@ -146,12 +154,14 @@ public:
 	 */
 	void OperatorControl(void)
 	{
+//		DBControl->dashboardOut(1);
 		bool spikeOn = false;
 		int debugOutput = 0;
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
 		myRobot.SetSafetyEnabled(false);
 		printf("we are in teleop, accepting joystick input now\n");
+		
 		while (IsOperatorControl())
 		{
 			if (Loader->checkLimit()) {
@@ -193,7 +203,7 @@ public:
 	void Disabled(void)
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
-		}
+	}
 	/**
 	 * Compares scores to defined limits and returns true if the particle appears to be a target
 	 * 

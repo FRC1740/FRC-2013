@@ -1,4 +1,5 @@
 #include "WPILib.h"
+#include "Turret.h"
 
 class Lifter {
 	
@@ -7,7 +8,7 @@ class Lifter {
 public:
 
 	Lifter(void):
-		spikeLifter(1)
+		spikeLifter(lifterSpikePort)
 	{
 	}
 
@@ -44,8 +45,8 @@ class Shooter {
 public:
 	
 	Shooter(void):
-		Torquey(3),
-		Quickly(4)
+		Torquey(torqueyMotor),
+		Quickly(quickMotor)
 	{
 	}
 	void fire(void){ // Rev up and fire
