@@ -108,17 +108,17 @@ public:
 			for (unsigned i = 0; i < reports->size(); i++) {
 				ParticleAnalysisReport *report = &(reports->at(i));
 				
-				scores[i].rectangularity = scoreRectangularity(report);
+				scores[i].rectangularity = cameraFunctions->scoreRectangularity(report);
 				scores[i].aspectRatioOuter = cameraFunctions->scoreAspectRatio(filteredImage, report, true);
 				scores[i].aspectRatioInner = cameraFunctions->scoreAspectRatio(filteredImage, report, false);			
-				scores[i].xEdge = scoreXEdge(thresholdImage, report);
-				scores[i].yEdge = scoreYEdge(thresholdImage, report);
+				scores[i].xEdge = cameraFunctions->scoreXEdge(thresholdImage, report);
+				scores[i].yEdge = cameraFunctions->scoreYEdge(thresholdImage, report);
 				
-				if(scoreCompare(scores[i], false))
+				if(cameraFunctions->scoreCompare(scores[i], false))
 				{
 					printf("particle: %d  is a High Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
 					printf("Distance: %f \n", cameraFunctions->computeDistance(thresholdImage, report, false));
-				} else if (scoreCompare(scores[i], true)) {
+				} else if (cameraFunctions->scoreCompare(scores[i], true)) {
 					printf("particle: %d  is a Middle Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
 					printf("Distance: %f \n", cameraFunctions->computeDistance(thresholdImage, report, true));
 				} else {
@@ -205,93 +205,8 @@ public:
 	void Disabled(void)
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
-		
-	}
-	/**
-	 * Compares scores to defined limits and returns true if the particle appears to be a target
-	 * 
-	 * @param scores The structure containing the scores to compare
-	 * @param outer True if the particle should be treated as an outer target, false to treat it as a center target
-	 * 
-	 * @return True if the particle meets all limits, false otherwise
-	 */
-	bool scoreCompare(Scores scores, bool outer){
-		bool isTarget = true;
-		
-		isTarget &= scores.rectangularity > RECTANGULARITY_LIMIT;
-		if(outer){
-			isTarget &= scores.aspectRatioOuter > ASPECT_RATIO_LIMIT;
-		} else {
-			isTarget &= scores.aspectRatioInner > ASPECT_RATIO_LIMIT;
-		}
-		isTarget &= scores.xEdge > X_EDGE_LIMIT;
-		isTarget &= scores.yEdge > Y_EDGE_LIMIT;
-
-		return isTarget;
 	}
 	
-	/**
-	 * Computes a score (0-100) estimating how rectangular the particle is by comparing the area of the particle
-	 * to the area of the bounding box surrounding it. A perfect rectangle would cover the entire bounding box.
-	 * 
-	 * @param report The Particle Analysis Report for the particle to score
-	 * @return The rectangularity score (0-100)
-	 */
-	double scoreRectangularity(ParticleAnalysisReport *report){
-		if(report->boundingRect.width*report->boundingRect.height !=0){
-			return 100*report->particleArea/(report->boundingRect.width*report->boundingRect.height);
-		} else {
-			return 0;
-		}	
-	}
-	
-	/**
-	 * Computes a score based on the match between a template profile and the particle profile in the X direction. This method uses the
-	 * the column averages and the profile defined at the top of the sample to look for the solid vertical edges with
-	 * a hollow center.
-	 * 
-	 * @param image The image to use, should be the image before the convex hull is performed
-	 * @param report The Particle Analysis Report for the particle
-	 * 
-	 * @return The X Edge Score (0-100)
-	 */
-	double scoreXEdge(BinaryImage *image, ParticleAnalysisReport *report){
-		double total = 0;
-		LinearAverages *averages = imaqLinearAverages2(image->GetImaqImage(), IMAQ_COLUMN_AVERAGES, report->boundingRect);
-		for(int i=0; i < (averages->columnCount); i++){
-			if(xMin[i*(XMINSIZE-1)/averages->columnCount] < averages->columnAverages[i] 
-			   && averages->columnAverages[i] < xMax[i*(XMAXSIZE-1)/averages->columnCount]){
-				total++;
-			}
-		}
-		total = 100*total/(averages->columnCount);		//convert to score 0-100
-		imaqDispose(averages);							//let IMAQ dispose of the averages struct
-		return total;
-	}
-	
-	/**
-	 * Computes a score based on the match between a template profile and the particle profile in the Y direction. This method uses the
-	 * the row averages and the profile defined at the top of the sample to look for the solid horizontal edges with
-	 * a hollow center
-	 * 
-	 * @param image The image to use, should be the image before the convex hull is performed
-	 * @param report The Particle Analysis Report for the particle
-	 * 
-	 * @return The Y Edge score (0-100)
-	 */
-	double scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report){
-		double total = 0;
-		LinearAverages *averages = imaqLinearAverages2(image->GetImaqImage(), IMAQ_ROW_AVERAGES, report->boundingRect);
-		for(int i=0; i < (averages->rowCount); i++){
-			if(yMin[i*(YMINSIZE-1)/averages->rowCount] < averages->rowAverages[i] 
-			   && averages->rowAverages[i] < yMax[i*(YMAXSIZE-1)/averages->rowCount]){
-				total++;
-			}
-		}
-		total = 100*total/(averages->rowCount);		//convert to score 0-100
-		imaqDispose(averages);						//let IMAQ dispose of the averages struct
-		return total;
-	}		
 };
 
 START_ROBOT_CLASS(Robot_2013);
