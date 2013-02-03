@@ -6,7 +6,7 @@
 #include "Turret.h"
 #include "Loader.h"
 #include "CoDriver.h"
-#include "MainDriver.cpp"
+#include "MainDriver.h"
 //#include "DashBoardControl.cpp"
 
 // Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
@@ -33,10 +33,12 @@
  * chain (open it with the Vision Assistant)
  */
 
+
+
 class Robot_2013 : public SimpleRobot
 {
 	
-	Scores *scores; // defined in CameraCode.h
+	Scores *scores; //defined in CameraCode.h
 	cameraCode *cameraFunctions;
 //	dashboardControl *DBControl;
 
@@ -73,7 +75,6 @@ public:
 		frisbeeShooter->fire();
 
 		while (IsAutonomous() && IsEnabled()) {
-			
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
              * sample will either get images from the camera or from an image file stored in the top
@@ -150,15 +151,22 @@ public:
 		// instantiate shooter for firing 
 		Shooter *frisbeeShooter;
 		frisbeeShooter = new Shooter;
+		
+		// limit switches
 		Limiter *limitElevator;
 		limitElevator = new Limiter;
-
+		
+		// conveyor stuff
+		Conveyor *Sweeper;
+		Sweeper = new Conveyor;
+		
 		// Instantiate the co-driver object
 		coDriver *Driver2;
 		Driver2 = new coDriver;
 //		DBControl->dashboardOut(1);
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
+		bool conveyorToggled = false;
 		Driver1->disableSafety();
 		printf("we are in teleop, accepting joystick input now\n");
 		
@@ -171,11 +179,12 @@ public:
 				Driver1->teleopDrive();
 			}
 			// next we do the checks to see what the codriver is trying to do
-			if (!Driver2->raiseCheck(spikeLifter)) {
-				if (!Driver2->lowerCheck(spikeLifter)) {
+			if (Driver2->raiseCheck(spikeLifter) == false) {
+				if (Driver2->lowerCheck(spikeLifter) == false) {
 					Driver2->stopCheck(spikeLifter);
 				}
 			}
+			conveyorToggled = (Driver2->conveyorToggle(Sweeper, conveyorToggled));
 			Wait(0.005);				// wait for a motor update time
 		}
 		delete limitElevator;
@@ -183,6 +192,7 @@ public:
 		delete spikeLifter;
 		delete Driver1;
 		delete Driver2;
+		delete Sweeper;
 	}
 
 	void Disabled(void)
