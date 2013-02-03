@@ -166,7 +166,6 @@ public:
 //		DBControl->dashboardOut(1);
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
-		bool conveyorToggled = false;
 		Driver1->disableSafety();
 		printf("we are in teleop, accepting joystick input now\n");
 		
@@ -179,12 +178,8 @@ public:
 				Driver1->teleopDrive();
 			}
 			// next we do the checks to see what the codriver is trying to do
-			if (Driver2->raiseCheck(spikeLifter) == false) {
-				if (Driver2->lowerCheck(spikeLifter) == false) {
-					Driver2->stopCheck(spikeLifter);
-				}
-			}
-			conveyorToggled = (Driver2->conveyorToggle(Sweeper, conveyorToggled));
+			Driver2->lifterCheck(spikeLifter);
+			Driver2->conveyorCheck(Sweeper);
 			Wait(0.005);				// wait for a motor update time
 		}
 		delete limitElevator;

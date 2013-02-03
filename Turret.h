@@ -42,8 +42,10 @@ public:
 		spikeLifter.Set(Relay::kReverse);
 	}
 	void off(void){
-		//spikeLifter.Set(Relay::kOff);
-		printf("foo! ");
+		spikeLifter.Set(Relay::kOff);
+	}
+	float currentState(void){
+		return spikeLifter.Get();
 	}
 };
 

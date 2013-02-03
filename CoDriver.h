@@ -8,13 +8,14 @@
 #define conveyorButton 9
 class coDriver {
 	Joystick codriverStick; // stick for the co-driver
-
+	bool conveyorToggleState;
 public:
 	coDriver():
 		codriverStick(codriverStickPort)
-	{		
+	{	
+		conveyorToggleState = false;
 	}
-
+/*  old method of checking if the codriver wanted to move the lifter
 	bool raiseCheck(Lifter *spikeLifter){
 		if (codriverStick.GetRawButton(raiseButton)){
 			spikeLifter->raise();
@@ -38,10 +39,31 @@ public:
 	void stopCheck(Lifter *spikeLifter){
 		spikeLifter->off();
 	}
+	*/
+	void lifterCheck(Lifter *spikeLifter){
+		if(codriverStick.GetRawButton(lowerButton) == true && spikeLifter->currentState() != Relay::kReverse){
+			if (spikeLifter->currentState() != Relay::kReverse){
+				spikeLifter->lower();
+				printf("retracting the relay\n");
+			}
+		}
+		else if (codriverStick.GetRawButton(raiseButton)){
+			if (spikeLifter->currentState() != Relay::kForward){
+				spikeLifter->raise();
+				printf("extending the relay\n");
+			}
+		}
+		else{
+			if (spikeLifter->currentState() != Relay::kOff){
+				spikeLifter->off();
+				printf("stopping the relay");
+			}
+		}
+	}
 
-	bool conveyorToggle(Conveyor *conveyorBelt, bool State) {
-		bool currentState = codriverStick.GetRawButton(conveyorButton);
-		if(currentState != State && currentState){
+	void conveyorCheck(Conveyor *conveyorBelt) {
+		bool buttonPress = codriverStick.GetRawButton(conveyorButton);
+		if(buttonPress && buttonPress != conveyorToggleState){
 			if (conveyorBelt->conveyorState() != 0){
 				conveyorBelt->activateConveyor();
 			}
@@ -49,9 +71,11 @@ public:
 				conveyorBelt->stopConveyor();
 			}
 			
-			return true;
+			conveyorToggleState = true;
 		}
-		return false;
+		else{
+			conveyorToggleState =  false;
+		}
 	}
 //	bool alreadyDone(){
 
