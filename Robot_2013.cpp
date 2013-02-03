@@ -33,21 +33,10 @@
  * chain (open it with the Vision Assistant)
  */
 
-
-
 class Robot_2013 : public SimpleRobot
 {
-	//Structure to represent the scores for the various tests used for target identification
-/*	struct Scores {
-		double rectangularity;
-		double aspectRatioInner;
-		double aspectRatioOuter;
-		double xEdge;
-		double yEdge;
-
-	};*/
 	
-	Scores *scores;
+	Scores *scores; // defined in CameraCode.h
 	cameraCode *cameraFunctions;
 //	dashboardControl *DBControl;
 
@@ -84,6 +73,7 @@ public:
 		frisbeeShooter->fire();
 
 		while (IsAutonomous() && IsEnabled()) {
+			
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
              * sample will either get images from the camera or from an image file stored in the top
@@ -174,25 +164,18 @@ public:
 		
 		while (IsOperatorControl())
 		{
-			printf("step 1... ");
 			if (limitElevator->checkLimit()) {
 				Driver1->killDrive();
-				printf("step 1.5\n");
 			}
 			else {
 				Driver1->teleopDrive();
-				printf("step 1.5\n");
 			}
-			printf("step 2... ");
 			// next we do the checks to see what the codriver is trying to do
-			if (Driver2->raiseCheck(spikeLifter) == false) {
-				printf("step 2.1... ");
-				if (Driver2->lowerCheck(spikeLifter) == false) {
-					printf("step 2.2... ");
+			if (!Driver2->raiseCheck(spikeLifter)) {
+				if (!Driver2->lowerCheck(spikeLifter)) {
 					Driver2->stopCheck(spikeLifter);
 				}
 			}
-			printf("looping");
 			Wait(0.005);				// wait for a motor update time
 		}
 		delete limitElevator;
