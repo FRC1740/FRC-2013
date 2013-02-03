@@ -9,9 +9,7 @@
 
 void _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_CameraCode_cpp_05647D79_39712D68();
 
-void _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Loader_cpp_05647D79_B7C0C2B7();
-
-void _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Turret_cpp_05647D79_AA705870();
+void _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_MainDriver_cpp_05647D79_7AC363B8();
 
 void _GLOBAL__I__Z20FRC_userClassFactoryv();
 
@@ -22,6 +20,8 @@ void _GLOBAL__I__ZN9Scheduler9_instanceE();
 void _GLOBAL__I__ZN11WaitCommandC2Ed();
 
 void _GLOBAL__I_wpi_error_s_ModuleIndexOutOfRange();
+
+void _GLOBAL__I__ZN10LiveWindow10m_instanceE();
 
 void _GLOBAL__I__ZN17MotorSafetyHelper12m_headHelperE();
 
@@ -65,13 +65,13 @@ extern void (*_ctors[])();
 void (*_ctors[])() =
     {
     _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_CameraCode_cpp_05647D79_39712D68,
-    _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Loader_cpp_05647D79_B7C0C2B7,
-    _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Turret_cpp_05647D79_AA705870,
+    _GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_MainDriver_cpp_05647D79_7AC363B8,
     _GLOBAL__I__Z20FRC_userClassFactoryv,
     _GLOBAL__I__ZN12PrintCommandC2EPKc,
     _GLOBAL__I__ZN9Scheduler9_instanceE,
     _GLOBAL__I__ZN11WaitCommandC2Ed,
     _GLOBAL__I_wpi_error_s_ModuleIndexOutOfRange,
+    _GLOBAL__I__ZN10LiveWindow10m_instanceE,
     _GLOBAL__I__ZN17MotorSafetyHelper12m_headHelperE,
     _GLOBAL__I__ZN8Notifier21kTimerInterruptNumberE,
     _GLOBAL__I__ZN8Resource12m_createLockE,
@@ -96,9 +96,7 @@ void (*_ctors[])() =
 
 void _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_CameraCode_cpp_05647D79_39712D68();
 
-void _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Loader_cpp_05647D79_B7C0C2B7();
-
-void _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Turret_cpp_05647D79_AA705870();
+void _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_MainDriver_cpp_05647D79_7AC363B8();
 
 void _GLOBAL__D__Z20FRC_userClassFactoryv();
 
@@ -144,8 +142,7 @@ extern void (*_dtors[])();
 void (*_dtors[])() =
     {
     _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_CameraCode_cpp_05647D79_39712D68,
-    _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Loader_cpp_05647D79_B7C0C2B7,
-    _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_Turret_cpp_05647D79_AA705870,
+    _GLOBAL__D__GLOBAL__I_C__Users_hjax_Desktop_robo_Robot_2013_MainDriver_cpp_05647D79_7AC363B8,
     _GLOBAL__D__Z20FRC_userClassFactoryv,
     _GLOBAL__D__ZN9Scheduler9_instanceE,
     _GLOBAL__D_wpi_error_s_ModuleIndexOutOfRange,

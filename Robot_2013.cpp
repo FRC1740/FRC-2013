@@ -2,10 +2,11 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
-#include "Turret.cpp"
-#include "Loader.cpp"
 #include "CameraCode.cpp"
-#include "Robot_2013.h"
+#include "Turret.h"
+#include "Loader.h"
+#include "CoDriver.h"
+#include "MainDriver.cpp"
 //#include "DashBoardControl.cpp"
 
 // Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
@@ -46,38 +47,29 @@ class Robot_2013 : public SimpleRobot
 
 	};*/
 	
-	RobotDrive myRobot; // robot drive system
-	Joystick leftStick; // left joystick
-	Joystick rightStick; // right joystick
-	Joystick codriverStick; // stick for the co-driver
 	Scores *scores;
-	Lifter *spikeLifter;
-	Shooter *frisbeeShooter;
-	Limiter *Loader;
 	cameraCode *cameraFunctions;
 //	dashboardControl *DBControl;
 
 public:
-	Robot_2013(void):
-		myRobot(rightDrivePort, leftDrivePort),	// these must be initialized in the same order
-		leftStick(leftStickPort),		// as they are declared above.
-		rightStick(rightStickPort),
-		codriverStick(codriverStickPort)
-	{
-		spikeLifter = new Lifter;
-		frisbeeShooter = new Shooter;
-		Loader = new Limiter;
+	Robot_2013(void) {
 		cameraFunctions = new cameraCode;
 //		DBControl = new dashboardControl;
-		myRobot.SetExpiration(0.1);
-		myRobot.SetSafetyEnabled(false);
+
 	}
 
 	/**
 	 * Image processing code to identify 2013 Vision targets
 	 */
 	void Autonomous(void)
-	{		
+	{	
+		
+		// instantiate lifter for aiming
+		Lifter *spikeLifter;
+		spikeLifter = new Lifter;
+		// instantiate shooter for firing 
+		Shooter *frisbeeShooter;
+		frisbeeShooter = new Shooter;
 		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
 		ParticleFilterCriteria2 criteria[] = {
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
@@ -146,7 +138,11 @@ public:
 			//delete allocated reports and Scores objects also
 			delete scores;
 			delete reports;
+
 		}
+		// delete instances of other classes that we utilized
+		delete spikeLifter;
+		delete frisbeeShooter;
 	}
 
 	/**
@@ -154,55 +150,62 @@ public:
 	 */
 	void OperatorControl(void)
 	{
+		mainDriver *Driver1;
+		Driver1 = new mainDriver;
+		
+		// instantiate lifter for aiming
+		Lifter *spikeLifter;
+		spikeLifter = new Lifter;
+	
+		// instantiate shooter for firing 
+		Shooter *frisbeeShooter;
+		frisbeeShooter = new Shooter;
+		Limiter *limitElevator;
+		limitElevator = new Limiter;
+
+		// Instantiate the co-driver object
+		coDriver *Driver2;
+		Driver2 = new coDriver;
 //		DBControl->dashboardOut(1);
-		bool spikeOn = false;
-		int debugOutput = 0;
 		printf("starting Teleop\n");
 //		spikeLifter->cycle_linear_actuator(true);
-		myRobot.SetSafetyEnabled(false);
+		Driver1->disableSafety();
 		printf("we are in teleop, accepting joystick input now\n");
 		
 		while (IsOperatorControl())
 		{
-			if (Loader->checkLimit()) {
-				myRobot.StopMotor();
+			printf("step 1... ");
+			if (limitElevator->checkLimit()) {
+				Driver1->killDrive();
+				printf("step 1.5\n");
 			}
 			else {
-				myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
+				Driver1->teleopDrive();
+				printf("step 1.5\n");
 			}
-			if (rightStick.GetRawButton(11) == true){
-				spikeLifter->raise();
-				if (debugOutput != 1){
-					printf("extending the relay\n");
-					debugOutput = 1;
-				}
-				spikeOn = true;
-			}
-			else if(rightStick.GetRawButton(10) == true){
-				spikeLifter->lower();
-				if (debugOutput != 2){
-					printf("retracting the relay\n");
-					debugOutput = 2;
-				}
-				spikeOn = true;
-			}
-			else {
-				if (spikeOn){
-					spikeLifter->off();
-					if (debugOutput != 3){
-						printf("stopping the spike\n");
-						debugOutput = 3;
-					}
-					spikeOn = false;
+			printf("step 2... ");
+			// next we do the checks to see what the codriver is trying to do
+			if (Driver2->raiseCheck(spikeLifter) == false) {
+				printf("step 2.1... ");
+				if (Driver2->lowerCheck(spikeLifter) == false) {
+					printf("step 2.2... ");
+					Driver2->stopCheck(spikeLifter);
 				}
 			}
+			printf("looping");
 			Wait(0.005);				// wait for a motor update time
 		}
+		delete limitElevator;
+		delete frisbeeShooter;
+		delete spikeLifter;
+		delete Driver1;
+		delete Driver2;
 	}
 
 	void Disabled(void)
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
+		
 	}
 	/**
 	 * Compares scores to defined limits and returns true if the particle appears to be a target
