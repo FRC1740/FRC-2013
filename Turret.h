@@ -4,9 +4,9 @@
 // This is the digital output port for the spike that raises and lowers the turret
 #define lifterSpikePort 1
 // This is the stronger slower motor for the first wheel on the shooter
-#define torqueyMotor 3
+#define torqueyMotorPort 3
 // This is the weaker faster motor for the second wheel on the shooter
-#define quickMotor 4
+#define quickMotorPort 4
 
 class Lifter {
 	
@@ -55,8 +55,8 @@ class Shooter {
 public:
 	
 	Shooter(void):
-		Torquey(torqueyMotor),
-		Quickly(quickMotor)
+		Torquey(torqueyMotorPort),
+		Quickly(quickMotorPort)
 	{
 	}
 	void fire(void){ // Rev up and fire
