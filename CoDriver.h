@@ -41,7 +41,7 @@ public:
 	}
 	*/
 	void lifterCheck(Lifter *spikeLifter){
-		if(codriverStick.GetRawButton(lowerButton) == true && spikeLifter->currentState() != Relay::kReverse){
+		if(codriverStick.GetRawButton(lowerButton)){
 			if (spikeLifter->currentState() != Relay::kReverse){
 				spikeLifter->lower();
 				printf("retracting the relay\n");
