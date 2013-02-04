@@ -67,6 +67,7 @@ public:
 		};												//Particle filter criteria, used to filter out small particles
 //		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
+		SmartDashboard::PutBoolean("In Teleop", false);
 	
 		// Reset the actuator for the lifter and do a shot
 		spikeLifter->lower();
@@ -168,6 +169,7 @@ public:
 //		spikeLifter->cycle_linear_actuator(true);
 		Driver1->disableSafety();
 		printf("we are in teleop, accepting joystick input now\n");
+		SmartDashboard::PutBoolean("In Teleop", true);
 		
 		while (IsOperatorControl())
 		{
