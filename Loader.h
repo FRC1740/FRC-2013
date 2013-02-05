@@ -1,37 +1,34 @@
 #ifndef LOADER_H_
 #define LOADER_H_
 
+#include <time.h>
+
 #define elevatorMotorPort 5
 #define oneRotationTime 3
 #define stopTime .05
 
+#define limitConveyorPort 1
+#define limitElevatorPort 2
+
 #define beltMotorPort 6
 
-class Limiter {
-	
-	DigitalInput Limit;
-//	Victor Grab;
-//	Victor Lift;
-	
-public:
-	Limiter(void):
-		Limit(1)
-	{
-	}
-	bool checkLimit(void){
-		return Limit.Get();
-	}
-};
-
-class Conveyor {
+class Loader {
 	Victor Belt;
+	Victor Elevator;
+	DigitalInput limitConveyor;
+	DigitalInput limitElevator;
 public:
-	Conveyor(void):
-		Belt(beltMotorPort)
+	Loader(void):
+		Belt(beltMotorPort),
+		Elevator(elevatorMotorPort),
+		limitConveyor(limitConveyorPort),
+		limitElevator(limitElevatorPort)
 	{
 	}
 	void activateConveyor(void) {
-		Belt.Set(1);
+		if (not checkLimitConveyor()){
+			Belt.Set(1);
+		}
 	}
 	void stopConveyor(void) {
 		Belt.Set(0);
@@ -40,21 +37,28 @@ public:
 		return Belt.Get();
 	}
 	
-};
-
-class Raiser {
-	Victor Elevator;
-public:
-	Raiser(void):
-		Elevator(elevatorMotorPort)
-	{
-	}
-	void raiseOneLevel(void){
+	void activateElevator(void){
 		Elevator.Set(1);
-		Wait(oneRotationTime);
-		Elevator.Set(-1);
-		Wait(stopTime);
+	}
+	
+	void stopElevator(void){
 		Elevator.Set(0);
 	}
+	
+	float elevatorState(void){
+		return Elevator.Get();
+	}
+	
+	bool checkLimitConveyor(void){
+		return limitConveyor.Get();
+	}
+
+	void loaderSequence(void){
+		if (limitConveyor.Get()){
+			Belt.Set(0);
+			Elevator.Set(1);
+		}
+	}
+	
 };
 #endif

@@ -59,12 +59,14 @@ public:
 		Quickly(quickMotorPort)
 	{
 	}
-	void fire(void){ // Rev up and fire
-		Torquey.Set(0.5);
-		Wait(5);
-		Torquey.Set(0);
+	void Fire(void){ // fire
+		Wait(.5);
+		Torquey.Set(1);
 		Quickly.Set(1);
-		Wait(5);
+
+	}
+	void stopFiring(void){ // Ok we are stopping firing now
+		Torquey.Set(0);
 		Quickly.Set(0);
 	}
 };

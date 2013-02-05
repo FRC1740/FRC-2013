@@ -3,43 +3,23 @@
 
 #define codriverStickPort 3
 
+
+#define Trigger 1
 #define raiseButton 11
 #define lowerButton 10
 #define conveyorButton 9
 class coDriver {
 	Joystick codriverStick; // stick for the co-driver
-	bool previousButtonState;
+	bool previousButtonStateConveyor;
+	bool isShooting;
 public:
 	coDriver():
 		codriverStick(codriverStickPort)
 	{	
-		previousButtonState = false;
+		previousButtonStateConveyor = false;
+		isShooting = false;
 	}
-/*  old method of checking if the codriver wanted to move the lifter
-	bool raiseCheck(Lifter *spikeLifter){
-		if (codriverStick.GetRawButton(raiseButton)){
-			spikeLifter->raise();
-			printf("extending the relay\n");
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	bool lowerCheck(Lifter *spikeLifter){
-		if(codriverStick.GetRawButton(lowerButton) == true){
-			spikeLifter->lower();
-			printf("retracting the relay\n");
-			return true;
-			}
-		else{
-			return false;
-		}
-	}
-	void stopCheck(Lifter *spikeLifter){
-		spikeLifter->off();
-	}
-	*/
+
 	void lifterCheck(Lifter *spikeLifter){
 		if(codriverStick.GetRawButton(lowerButton)){
 			if (spikeLifter->currentState() != Relay::kReverse){
@@ -61,24 +41,39 @@ public:
 		}
 	}
 
-	void conveyorCheck(Conveyor *conveyorBelt) {
+	void conveyorCheck(Loader *frisbeeLoader) {
 		bool buttonPress = codriverStick.GetRawButton(conveyorButton);
-		if(buttonPress && (buttonPress != previousButtonState)){
-			if (conveyorBelt->conveyorState() == 0){
-				conveyorBelt->activateConveyor();
+		if(buttonPress && (buttonPress != previousButtonStateConveyor)){
+			if (not frisbeeLoader->conveyorState()){
+				frisbeeLoader->activateConveyor();
 				printf("starting the conveyor\n");
 			}
 			else {
-				conveyorBelt->stopConveyor();
+				frisbeeLoader->stopConveyor();
 				printf("stopping the conveyor\n");
 			}
 			
-			previousButtonState = true;
+			previousButtonStateConveyor = true;
 		}
 		else if (not buttonPress){
-			previousButtonState =  false;
+			previousButtonStateConveyor =  false;
 		}
 	}
+	void fireAtWill(Shooter *frisbeeShooter, Loader *frisbeeLoader){
+		bool buttonPress = codriverStick.GetRawButton(Trigger);
+		if (buttonPress && (isShooting != buttonPress)){
+			printf("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\r GUNS ARE ACTIVE!!!!!!!!!!!!!\n");
+			frisbeeShooter->Fire();
+			frisbeeLoader->activateElevator();
+			isShooting = true;
+		}
+		else if (not buttonPress){
+			frisbeeShooter->stopFiring();
+			frisbeeLoader->stopElevator();
+			isShooting = false;
+		}
 
+
+	}
 };
 #endif

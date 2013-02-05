@@ -65,15 +65,11 @@ public:
 		ParticleFilterCriteria2 criteria[] = {
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 		};												//Particle filter criteria, used to filter out small particles
-//		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
 	
 		// Reset the actuator for the lifter and do a shot
-		spikeLifter->lower();
-		Wait(3);
-		spikeLifter->off();
-		frisbeeShooter->fire();
 
 		while (IsAutonomous() && IsEnabled()) {
             /**
@@ -83,9 +79,9 @@ public:
              */
 			ColorImage *image;
 		
-			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
+//			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
 
-//			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
 			//thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
@@ -153,13 +149,9 @@ public:
 		Shooter *frisbeeShooter;
 		frisbeeShooter = new Shooter;
 		
-		// limit switches
-		Limiter *limitElevator;
-		limitElevator = new Limiter;
-		
 		// conveyor stuff
-		Conveyor *Sweeper;
-		Sweeper = new Conveyor;
+		Loader *Sweeper;
+		Sweeper = new Loader;
 		
 		// Instantiate the co-driver object
 		coDriver *Driver2;
@@ -171,20 +163,15 @@ public:
 		printf("we are in teleop, accepting joystick input now\n");
 		SmartDashboard::PutBoolean("In Teleop", true);
 		
-		while (IsOperatorControl())
-		{
-			if (limitElevator->checkLimit()) {
-				Driver1->killDrive();
-			}
-			else {
-				Driver1->teleopDrive();
-			}
+		while (IsOperatorControl()){
+			Driver1->teleopDrive();
 			// next we do the checks to see what the codriver is trying to do
 			Driver2->lifterCheck(spikeLifter);
 			Driver2->conveyorCheck(Sweeper);
-			Wait(0.005);				// wait for a motor update time
+			Sweeper->loaderSequence();
+			Driver2->fireAtWill(frisbeeShooter, Sweeper);
+			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
-		delete limitElevator;
 		delete frisbeeShooter;
 		delete spikeLifter;
 		delete Driver1;
@@ -196,7 +183,9 @@ public:
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
 	}
-	
+	void RobotInit(void){
+		printf("I\'m Init`ed");
+	}
 };
 
 START_ROBOT_CLASS(Robot_2013);
