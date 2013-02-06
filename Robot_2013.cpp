@@ -67,7 +67,7 @@ public:
 		};												//Particle filter criteria, used to filter out small particles
 		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
-		SmartDashboard::PutString("Mode", "Autonomous");
+		SmartDashboard::PutBoolean("In Teleop", false);
 	
 		// Reset the actuator for the lifter and do a shot
 
@@ -182,11 +182,9 @@ public:
 	void Disabled(void)
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
-		SmartDashboard::PutString("Mode", "Disabled");
 	}
 	void RobotInit(void){
 		printf("I\'m Init`ed");
-		SmartDashboard::PutString("Mode", "Init");
 	}
 };
 
