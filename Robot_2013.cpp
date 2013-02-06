@@ -33,7 +33,7 @@
  * chain (open it with the Vision Assistant)
  */
 
-
+// WE NEED TO PUT THE CAMERA IP ADDRESS IN 
 
 class Robot_2013 : public SimpleRobot
 {
@@ -65,7 +65,7 @@ public:
 		ParticleFilterCriteria2 criteria[] = {
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 		};												//Particle filter criteria, used to filter out small particles
-		 AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
 	
