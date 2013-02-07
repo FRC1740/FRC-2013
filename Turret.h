@@ -8,14 +8,19 @@
 // This is the weaker faster motor for the second wheel on the shooter
 #define quickMotorPort 4
 
+#define maxOut 4.863
+#define minOut 0.1
+
 class Lifter {
 	
 	Relay spikeLifter;
+	AnalogChannel lifterState;
 	
 public:
 
 	Lifter(void):
-		spikeLifter(lifterSpikePort)
+		spikeLifter(lifterSpikePort),
+		lifterState(1)
 	{
 	}
 
@@ -46,6 +51,23 @@ public:
 	}
 	float currentState(void){
 		return spikeLifter.Get();
+	}
+	float currentVoltage(void){
+		return lifterState.GetVoltage();
+	}
+	float getPercent(float input){
+		if (input < minOut){
+			return 0;
+		}
+		else if (input > maxOut){
+			return 100;
+		}
+		else{
+			return input / maxOut;
+		}
+	}
+	float getInches(){
+		return getPercent(currentVoltage()) * 6.0;
 	}
 };
 

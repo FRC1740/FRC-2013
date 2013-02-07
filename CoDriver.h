@@ -3,7 +3,6 @@
 
 #define codriverStickPort 3
 
-
 #define Trigger 1
 #define raiseButton 11
 #define lowerButton 10
@@ -25,21 +24,25 @@ public:
 			if (spikeLifter->currentState() != Relay::kReverse){
 				spikeLifter->lower();
 				printf("retracting the relay\n");
+				printf("We are starting at state %f\n", spikeLifter->getInches());
 			}
 		}
 		else if (codriverStick.GetRawButton(raiseButton)){
 			if (spikeLifter->currentState() != Relay::kForward){
 				spikeLifter->raise();
 				printf("extending the relay\n");
+				printf("We are starting at state %f\n", spikeLifter->getInches());
 			}
 		}
 		else{
 			if (spikeLifter->currentState() != Relay::kOff){
 				spikeLifter->off();
 				printf("stopping the relay\n");
+				printf("We ending at state %f\n", spikeLifter->getInches());
 			}
 		}
 	}
+	
 
 	void conveyorCheck(Loader *frisbeeLoader) {
 		bool buttonPress = codriverStick.GetRawButton(conveyorButton);

@@ -54,18 +54,19 @@ public:
 	 */
 	void Autonomous(void)
 	{	
-		
+		printf("ready to begin");
 		// instantiate lifter for aiming
 		Lifter *spikeLifter;
 		spikeLifter = new Lifter;
 		// instantiate shooter for firing 
 		Shooter *frisbeeShooter;
 		frisbeeShooter = new Shooter;
-		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-		ParticleFilterCriteria2 criteria[] = {
-				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-		};												//Particle filter criteria, used to filter out small particles
-		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+//		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+//		ParticleFilterCriteria2 criteria[] = {
+//				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+//		};												//Particle filter criteria, used to filter out small particles
+		printf("initalizing camera");
+//		AxisCamera &camera = AxisCamera::GetInstance("10.17.40.11");	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
 	
@@ -77,11 +78,11 @@ public:
              * sample will either get images from the camera or from an image file stored in the top
              * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
              */
-			ColorImage *image;
+//			ColorImage *image;
 		
 //			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
 
-			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+/*			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
 			//thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
@@ -91,7 +92,6 @@ public:
 
 			vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 			scores = new Scores[reports->size()];
-			
 			//Iterate through each particle, scoring it and determining whether it is a target or not
 			for (unsigned i = 0; i < reports->size(); i++) {
 				ParticleAnalysisReport *report = &(reports->at(i));
@@ -116,16 +116,17 @@ public:
 				printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);	
 			}
 			printf("\n");
+*/
 			
 			// be sure to delete images after using them
-			delete filteredImage;
-			delete convexHullImage;
-			delete thresholdImage;
-			delete image;
+//			delete filteredImage;
+//			delete convexHullImage;
+//			delete thresholdImage;
+//			delete image;
 			
 			//delete allocated reports and Scores objects also
 			delete scores;
-			delete reports;
+//			delete reports;
 
 		}
 		// delete instances of other classes that we utilized

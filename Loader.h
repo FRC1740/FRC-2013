@@ -27,7 +27,7 @@ public:
 	}
 	void activateConveyor(void) {
 		if (not checkLimitConveyor()){
-			Belt.Set(1);
+			Belt.Set(-1);
 		}
 	}
 	void stopConveyor(void) {
