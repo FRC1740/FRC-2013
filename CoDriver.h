@@ -65,7 +65,7 @@ public:
 	void fireAtWill(Shooter *frisbeeShooter, Loader *frisbeeLoader){
 		bool buttonPress = codriverStick.GetRawButton(Trigger);
 		if (buttonPress && (isShooting != buttonPress)){
-			printf("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\r GUNS ARE ACTIVE!!!!!!!!!!!!!\n");
+			printf("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\rGUNS ARE ACTIVE!!!!!!!!!!!!!\n");
 			frisbeeShooter->Fire();
 			frisbeeLoader->activateElevator();
 			isShooting = true;
@@ -78,5 +78,10 @@ public:
 
 
 	}
+	
+	void initalizeLifter(Lifter *spikeLifter){
+		spikeLifter->cycle_linear_actuator();
+	}
+
 };
 #endif

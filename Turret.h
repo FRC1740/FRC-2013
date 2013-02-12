@@ -8,11 +8,12 @@
 // This is the weaker faster motor for the second wheel on the shooter
 #define quickMotorPort 4
 
-#define maxOut 4.863
-#define minOut 0.1
+//#define maxOut 4.863
+//#define minOut 0.1
 
 class Lifter {
-	
+	float maxOut;
+	float minOut;
 	Relay spikeLifter;
 	AnalogChannel lifterState;
 	
@@ -22,24 +23,25 @@ public:
 		spikeLifter(lifterSpikePort),
 		lifterState(1)
 	{
+		minOut = 0.0;   // initalize to reasonable values
+		maxOut = 5.0;
 	}
 
-/* 
-	void cycle_linear_actuator(bool state) {
 
-		printf("testing: class Lifter, function cycle");
-		int foo = spikeLifter.Get();
-		printf("Lifter: spikeLifter status: %d\n", foo);
+	void cycle_linear_actuator(void) {
+		printf("Testing Lifter\n");
 		raise();			// Extend
-		printf("Lifter: wait 5 sec...\n");
+		printf("Maximus Outpodius (maximum output)\n");
 		Wait(5);
+		maxOut = getInches();
 		lower();			// Retract
-		printf("Lifter: Wait 5 more sec...\n");
+		printf("Minimus Outpodius (minimum output)\n");
 		Wait(5);
+		minOut = getInches();
 		off();
-		printf("Lifter: Exiting!\n");
+		printf("Lifter Tests Complete\n");
 	}
-*/
+
 	void raise(void){
 		spikeLifter.Set(Relay::kForward);
 	}
@@ -55,19 +57,19 @@ public:
 	float currentVoltage(void){
 		return lifterState.GetVoltage();
 	}
-	float getPercent(float input){
-		if (input < minOut){
+	float getPercent(){
+		if (currentVoltage() < minOut){
 			return 0;
 		}
-		else if (input > maxOut){
+		else if (currentVoltage() > maxOut){
 			return 100;
 		}
 		else{
-			return input / maxOut;
+			return currentVoltage() / maxOut;
 		}
 	}
 	float getInches(){
-		return getPercent(currentVoltage()) * 6.0;
+		return getPercent() * 6.0;
 	}
 };
 
