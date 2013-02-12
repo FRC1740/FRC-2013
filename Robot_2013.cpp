@@ -54,7 +54,7 @@ public:
 	 */
 	void Autonomous(void)
 	{	
-		printf("ready to begin");
+		printf("ready to begin\n");
 		// instantiate lifter for aiming
 		Lifter *spikeLifter;
 		spikeLifter = new Lifter;
@@ -65,7 +65,7 @@ public:
 //		ParticleFilterCriteria2 criteria[] = {
 //				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 //		};												//Particle filter criteria, used to filter out small particles
-		printf("initalizing camera");
+		printf("initalizing camera\n");
 //		AxisCamera &camera = AxisCamera::GetInstance("10.17.40.11");	//To use the Axis camera uncomment this line
 		printf("we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
@@ -171,6 +171,7 @@ public:
 			Driver2->conveyorCheck(Sweeper);
 			Sweeper->loaderSequence();
 			Driver2->fireAtWill(frisbeeShooter, Sweeper);
+			Driver2->initalizeLifter(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
 		delete frisbeeShooter;
@@ -185,7 +186,7 @@ public:
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
 	}
 	void RobotInit(void){
-		printf("I\'m Init`ed");
+		printf("I\'m Init`ed\n");
 	}
 };
 

@@ -80,7 +80,9 @@ public:
 	}
 	
 	void initalizeLifter(Lifter *spikeLifter){
-		spikeLifter->cycle_linear_actuator();
+		if (codriverStick.GetRawButton(7));{
+			spikeLifter->cycle_linear_actuator();
+		}
 	}
 
 };
