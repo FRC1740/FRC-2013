@@ -2,12 +2,11 @@
 #include "Vision/RGBImage.h"
 #include "Vision/BinaryImage.h"
 #include "Math.h"
-#include "CameraCode.cpp"
+#include "CameraCode.h"
 #include "Turret.h"
 #include "Loader.h"
 #include "CoDriver.h"
 #include "MainDriver.h"
-//#include "DashBoardControl.cpp"
 
 // Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
 
@@ -33,18 +32,17 @@
  * chain (open it with the Vision Assistant)
  */
 
-// WE NEED TO PUT THE CAMERA IP ADDRESS IN 
 
 class Robot_2013 : public SimpleRobot
 {
 	
 	Scores *scores; //defined in CameraCode.h
-	cameraCode *cameraFunctions;
+	CameraCode *cameraFunctions;
 //	dashboardControl *DBControl;
 
 public:
 	Robot_2013(void) {
-		cameraFunctions = new cameraCode;
+		cameraFunctions = new CameraCode;
 //		DBControl = new dashboardControl;
 
 	}
@@ -61,39 +59,61 @@ public:
 		// instantiate shooter for firing 
 		Shooter *frisbeeShooter;
 		frisbeeShooter = new Shooter;
+		
+		/*
+		spikeLifter->raise();
+		Wait(3.5);
+		spikeLifter->lower();
+		Wait(3.5);
+		*/
+
+		// The following HSV threshold recognizes GREEN 
 //		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-//		ParticleFilterCriteria2 criteria[] = {
-//				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-//		};												//Particle filter criteria, used to filter out small particles
+
+		// Attempting to recognize BLUE 
+		Threshold threshold(130, 180, 60, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+
+		ParticleFilterCriteria2 criteria[] = {
+				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+		};												//Particle filter criteria, used to filter out small particles
+
 		printf("initalizing camera\n");
-//		AxisCamera &camera = AxisCamera::GetInstance("10.17.40.11");	//To use the Axis camera uncomment this line
-		printf("we are in autonomous\n");
+		AxisCamera &camera = AxisCamera::GetInstance("10.17.40.11");	//To use the Axis camera uncomment this line
+		fprintf(stderr,"we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
 	
 		// Reset the actuator for the lifter and do a shot
 
-		while (IsAutonomous() && IsEnabled()) {
+		if (IsAutonomous() && IsEnabled()) {
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
              * sample will either get images from the camera or from an image file stored in the top
              * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
              */
-//			ColorImage *image;
-		
-//			image = new RGBImage("/testImage.jpg");		// get the sample image from the cRIO flash
+			ColorImage *image;
+			
+			//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
 
-/*			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+			image->Write("/raw_image.jpg");
+			//fprintf(stderr,"Got an image from the camera: %d px x %d px\n",image->GetHeight(), image->GetWidth());
+			
+			/* */
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
-			//thresholdImage->Write("/threshold.bmp");
+			thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-			//convexHullImage->Write("/ConvexHull.bmp");
+			convexHullImage->Write("/ConvexHull.bmp");
 			BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-			//filteredImage->Write("Filtered.bmp");
+			filteredImage->Write("Filtered.bmp");
 
 			vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 			scores = new Scores[reports->size()];
+			
+			// fprintf(stderr,"reports->size = %d\n", reports->size());
+			
 			//Iterate through each particle, scoring it and determining whether it is a target or not
 			for (unsigned i = 0; i < reports->size(); i++) {
+			
 				ParticleAnalysisReport *report = &(reports->at(i));
 				
 				scores[i].rectangularity = cameraFunctions->scoreRectangularity(report);
@@ -113,20 +133,23 @@ public:
 					printf("particle: %d  is not a goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
 				}
 				printf("rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
-				printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);	
+				printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
 			}
+			/* */
 			printf("\n");
-*/
 			
 			// be sure to delete images after using them
-//			delete filteredImage;
-//			delete convexHullImage;
-//			delete thresholdImage;
-//			delete image;
+			/* */
+			delete filteredImage;
+			delete convexHullImage;
+			delete thresholdImage;
 			
 			//delete allocated reports and Scores objects also
 			delete scores;
-//			delete reports;
+			delete reports;
+			/* */
+
+			delete image;
 
 		}
 		// delete instances of other classes that we utilized
@@ -171,7 +194,6 @@ public:
 			Driver2->conveyorCheck(Sweeper);
 			Sweeper->loaderSequence();
 			Driver2->fireAtWill(frisbeeShooter, Sweeper);
-			Driver2->initalizeLifter(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
 		delete frisbeeShooter;

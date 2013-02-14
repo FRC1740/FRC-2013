@@ -1,3 +1,5 @@
+#ifndef _CAMERACODE_H
+#define _CAMERACODE_H
 //Camera constants used for distance calculation
 #define X_IMAGE_RES 320		//X Image resolution in pixels, should be 160, 320 or 640
 //#define VIEW_ANGLE 48		//Axis 206 camera
@@ -33,3 +35,15 @@ struct Scores {
 	double yEdge;
 
 };
+
+class CameraCode
+{
+public:
+	double scoreAspectRatio(BinaryImage *, ParticleAnalysisReport *, bool);
+	double computeDistance(BinaryImage *, ParticleAnalysisReport *, bool);
+	bool scoreCompare(Scores, bool);
+	double scoreRectangularity(ParticleAnalysisReport *);
+	double scoreXEdge(BinaryImage *, ParticleAnalysisReport *);
+	double scoreYEdge(BinaryImage *, ParticleAnalysisReport *);
+};
+#endif
