@@ -1,14 +1,5 @@
 #include "WPILIB.h"
 #include "turret.h"
-// This is the digital output port for the spike that raises and lowers the turret
-#define lifterSpikePort 1
-// This is the stronger slower motor for the first wheel on the shooter
-#define torqueyMotorPort 3
-// This is the weaker faster motor for the second wheel on the shooter
-#define quickMotorPort 4
-
-//#define maxOut 4.863
-//#define minOut 0.1
 
 Lifter::Lifter(void):
 spikeLifter(lifterSpikePort),
@@ -17,7 +8,6 @@ lifterState(1)
 	minOut = 0.0;   // initalize to reasonable values
 	maxOut = 5.0;
 }
-
 
 void Lifter::cycle_linear_actuator(void) {
 	printf("Testing Lifter\n");

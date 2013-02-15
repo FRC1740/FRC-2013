@@ -8,9 +8,6 @@
 // This is the weaker faster motor for the second wheel on the shooter
 #define quickMotorPort 4
 
-//#define maxOut 4.863
-//#define minOut 0.1
-
 class Lifter {
 	float maxOut;
 	float minOut;
