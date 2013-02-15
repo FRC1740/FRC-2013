@@ -38,7 +38,7 @@ public:
 			if (spikeLifter->currentState() != Relay::kOff){
 				spikeLifter->off();
 				printf("stopping the relay\n");
-				printf("We ending at state %f\n", spikeLifter->getInches());
+				printf("We are ending at state %f\n", spikeLifter->getInches());
 			}
 		}
 	}
@@ -80,7 +80,7 @@ public:
 	}
 	
 	void initalizeLifter(Lifter *spikeLifter){
-		if (codriverStick.GetRawButton(7));{
+		if (codriverStick.GetRawButton(7)){
 			spikeLifter->cycle_linear_actuator();
 		}
 	}
