@@ -10,7 +10,7 @@ lifterState(1)
 }
 
 void Lifter::cycle_linear_actuator(void) {
-	printf("Testing Lifter\n");
+	printf("Calibrating Lifter\n");
 	raise();			// Extend
 	printf("Maximus Outpodius (maximum output)\n");
 	Wait(5);
