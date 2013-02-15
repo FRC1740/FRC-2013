@@ -11,15 +11,15 @@ lifterState(1)
 
 void Lifter::cycle_linear_actuator(void) {
 	printf("Calibrating Lifter\n");
-	raise();			// Extend
+	Lifter::raise();			// Extend
 	printf("Maximus Outpodius (maximum output)\n");
 	Wait(5);
 	maxOut = getInches();
-	lower();			// Retract
+	Lifter::lower();			// Retract
 	printf("Minimus Outpodius (minimum output)\n");
 	Wait(5);
 	minOut = getInches();
-	off();
+	Lifter::off();
 	printf("Lifter Tests Complete\n");
 }
 
@@ -39,31 +39,31 @@ float Lifter::currentVoltage(void){
 	return lifterState.GetVoltage();
 }
 float Lifter::getPercent(){
-	if (currentVoltage() < minOut){
+	if (Lifter::currentVoltage() < minOut){
 		return 0;
 	}
-	else if (currentVoltage() > maxOut){
+	else if (Lifter::currentVoltage() > maxOut){
 		return 100;
 	}
 	else{
-		return currentVoltage() / maxOut;
+		return Lifter::currentVoltage() / maxOut;
 	}
 }
 float Lifter::getInches(){
-	return getPercent() * 6.0;
+	return Lifter::getPercent() * 6.0;
 }
 
 void Lifter::goToInch(float Inches){
 	printf("going to inches\n");
-	float currentInches = getInches();
+	float currentInches = Lifter::getInches();
 	while (currentInches > Inches){
-		lower();
+		Lifter::lower();
 	}
 	while (currentInches < Inches){
-		raise();
+		Lifter::raise();
 	}
 	printf("done\n!");
-	off();
+	Lifter::off();
 }
 
 Shooter::Shooter(void):
