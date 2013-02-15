@@ -54,6 +54,7 @@ float Lifter::getInches(){
 }
 
 void Lifter::goToInch(float Inches){
+	printf("going to inches\n");
 	float currentInches = getInches();
 	while (currentInches > Inches){
 		lower();
@@ -61,6 +62,7 @@ void Lifter::goToInch(float Inches){
 	while (currentInches < Inches){
 		raise();
 	}
+	printf("done\n!");
 	off();
 }
 

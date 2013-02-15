@@ -89,6 +89,7 @@ public:
 	
 	void goToInchCheck(Lifter *spikeLifter){
 		if (codriverStick.GetRawButton(8)){
+			printf("he hit the button!\n");
 			spikeLifter->goToInch(inchesTest);
 		}
 	}
