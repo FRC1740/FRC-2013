@@ -52,7 +52,7 @@ public:
 	 */
 	void Autonomous(void)
 	{	
-		printf("ready to begin\n");
+		printf("Entering autonomous...\n");
 		// instantiate lifter for aiming
 		Lifter *spikeLifter;
 		spikeLifter = new Lifter;
@@ -77,14 +77,20 @@ public:
 				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 		};												//Particle filter criteria, used to filter out small particles
 
-		printf("initalizing camera\n");
-		AxisCamera &camera = AxisCamera::GetInstance("10.17.40.11");	//To use the Axis camera uncomment this line
-		fprintf(stderr,"we are in autonomous\n");
 		SmartDashboard::PutBoolean("In Teleop", false);
-	
-		// Reset the actuator for the lifter and do a shot
+		
+		// The next group of lines are for testing image capture from the Axis 1011
+		printf("initalizing camera\n");
+//		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+//		ColorImage *image;
+		//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+		fprintf(stderr,"Writing raw image... ");
+//		image->Write("/raw_image.jpg");
+		fprintf(stderr, "Done.\n");
+//		delete image;
+		// End of testing code
 
-		if (IsAutonomous() && IsEnabled()) {
+		while (IsAutonomous() && IsEnabled()) {
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
              * sample will either get images from the camera or from an image file stored in the top
@@ -94,17 +100,17 @@ public:
 			
 			//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
 
-			camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
-			image->Write("/raw_image.jpg");
+			//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+			//image->Write("/raw_image.jpg");
 			//fprintf(stderr,"Got an image from the camera: %d px x %d px\n",image->GetHeight(), image->GetWidth());
 			
 			/* */
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
-			thresholdImage->Write("/threshold.bmp");
+			//thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-			convexHullImage->Write("/ConvexHull.bmp");
+			//convexHullImage->Write("/ConvexHull.bmp");
 			BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-			filteredImage->Write("Filtered.bmp");
+			//filteredImage->Write("Filtered.bmp");
 
 			vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 			scores = new Scores[reports->size()];
