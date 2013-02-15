@@ -19,81 +19,24 @@ class Lifter {
 	
 public:
 
-	Lifter(void):
-		spikeLifter(lifterSpikePort),
-		lifterState(1)
-	{
-		minOut = 0.0;   // initalize to reasonable values
-		maxOut = 5.0;
-	}
-
-
-	void cycle_linear_actuator(void) {
-		printf("Testing Lifter\n");
-		raise();			// Extend
-		printf("Maximus Outpodius (maximum output)\n");
-		Wait(5);
-		maxOut = getInches();
-		lower();			// Retract
-		printf("Minimus Outpodius (minimum output)\n");
-		Wait(5);
-		minOut = getInches();
-		off();
-		printf("Lifter Tests Complete\n");
-	}
-
-	void raise(void){
-		spikeLifter.Set(Relay::kForward);
-	}
-	void lower(void){
-		spikeLifter.Set(Relay::kReverse);
-	}
-	void off(void){
-		spikeLifter.Set(Relay::kOff);
-	}
-	float currentState(void){
-		return spikeLifter.Get();
-	}
-	float currentVoltage(void){
-		return lifterState.GetVoltage();
-	}
-	float getPercent(){
-		if (currentVoltage() < minOut){
-			return 0;
-		}
-		else if (currentVoltage() > maxOut){
-			return 100;
-		}
-		else{
-			return currentVoltage() / maxOut;
-		}
-	}
-	float getInches(){
-		return getPercent() * 6.0;
-	}
+	Lifter(void);
+	void cycle_linear_actuator(void);
+	void raise(void);
+	void lower(void);
+	void off(void);
+	float currentState(void);
+	float currentVoltage(void);
+	float getPercent();
+	float getInches();
 };
 
 class Shooter {
 	Victor Torquey;
 	Victor Quickly;
-public:
-	
-	Shooter(void):
-		Torquey(torqueyMotorPort),
-		Quickly(quickMotorPort)
-	{
-	}
-	void Fire(void){ // fire
-		Wait(.5);
-		Torquey.Set(1);
-		Quickly.Set(1);
-
-	}
-	void stopFiring(void){ // Ok we are stopping firing now
-		Torquey.Set(0);
-		Quickly.Set(0);
-	}
+public:	
+	Shooter(void);
+	void Fire(void); // fire
+	void stopFiring(void); // Ok we are stopping firing now
 };
 
 #endif
-
