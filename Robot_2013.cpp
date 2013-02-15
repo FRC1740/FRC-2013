@@ -96,6 +96,8 @@ public:
              * sample will either get images from the camera or from an image file stored in the top
              * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
              */
+			
+			/* 
 			ColorImage *image;
 			
 			//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
@@ -104,7 +106,6 @@ public:
 			//image->Write("/raw_image.jpg");
 			//fprintf(stderr,"Got an image from the camera: %d px x %d px\n",image->GetHeight(), image->GetWidth());
 			
-			/* */
 			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
 			//thresholdImage->Write("/threshold.bmp");
 			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
@@ -141,11 +142,10 @@ public:
 				printf("rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
 				printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
 			}
-			/* */
 			printf("\n");
 			
 			// be sure to delete images after using them
-			/* */
+			/* 
 			delete filteredImage;
 			delete convexHullImage;
 			delete thresholdImage;
@@ -153,9 +153,8 @@ public:
 			//delete allocated reports and Scores objects also
 			delete scores;
 			delete reports;
-			/* */
-
 			delete image;
+			/* */
 
 		}
 		// delete instances of other classes that we utilized
