@@ -25,6 +25,7 @@ public:
 	float currentVoltage(void);
 	float getPercent();
 	float getInches();
+	void goToInch(float);
 };
 
 class Shooter {

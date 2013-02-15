@@ -39,5 +39,7 @@ void Loader::loaderSequence(void){
 	if (limitConveyor.Get()){
 		Belt.Set(0);
 		Elevator.Set(1);
+		Wait(2);
+		Elevator.Set(0);
 	}
 }	

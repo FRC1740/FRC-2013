@@ -7,6 +7,8 @@
 #define raiseButton 11
 #define lowerButton 10
 #define conveyorButton 9
+
+#define inchesTest 3.8
 class coDriver {
 	Joystick codriverStick; // stick for the co-driver
 	bool previousButtonStateConveyor;
@@ -82,6 +84,12 @@ public:
 	void initalizeLifter(Lifter *spikeLifter){
 		if (codriverStick.GetRawButton(7)){
 			spikeLifter->cycle_linear_actuator();
+		}
+	}
+	
+	void goToInchCheck(Lifter *spikeLifter){
+		if (codriverStick.GetRawButton(8)){
+			spikeLifter->goToInch(inchesTest);
 		}
 	}
 

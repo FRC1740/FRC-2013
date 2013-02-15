@@ -53,6 +53,16 @@ float Lifter::getInches(){
 	return getPercent() * 6.0;
 }
 
+void Lifter::goToInch(float Inches){
+	float currentInches = getInches();
+	while (currentInches > Inches){
+		lower();
+	}
+	while (currentInches < Inches){
+		raise();
+	}
+	off();
+}
 
 Shooter::Shooter(void):
 				Torquey(torqueyMotorPort),
