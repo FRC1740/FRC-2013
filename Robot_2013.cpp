@@ -200,6 +200,7 @@ public:
 			Sweeper->loaderSequence();
 			Driver2->fireAtWill(frisbeeShooter, Sweeper);
 			Driver2->initalizeLifter(spikeLifter);
+			Driver2->goToInchCheck(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
 		delete frisbeeShooter;
