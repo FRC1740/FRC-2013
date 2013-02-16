@@ -1,6 +1,4 @@
 #include "WPILib.h"
-#include "Vision/RGBImage.h"
-#include "Vision/BinaryImage.h"
 #include "Math.h"
 #include "CameraCode.h"
 #include "Turret.h"
@@ -59,37 +57,10 @@ public:
 		// instantiate shooter for firing 
 		Shooter *frisbeeShooter;
 		frisbeeShooter = new Shooter;
+
+		spikeLifter->cycle_linear_actuator();
+		cameraFunctions->Test();
 		
-		/*
-		spikeLifter->raise();
-		Wait(3.5);
-		spikeLifter->lower();
-		Wait(3.5);
-		*/
-
-		// The following HSV threshold recognizes GREEN 
-//		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-
-		// Attempting to recognize BLUE 
-		Threshold threshold(130, 180, 60, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-
-		ParticleFilterCriteria2 criteria[] = {
-				{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-		};												//Particle filter criteria, used to filter out small particles
-
-		SmartDashboard::PutBoolean("In Teleop", false);
-		
-		// The next group of lines are for testing image capture from the Axis 1011
-		printf("initalizing camera\n");
-//		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
-//		ColorImage *image;
-		//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
-		fprintf(stderr,"Writing raw image... ");
-//		image->Write("/raw_image.jpg");
-		fprintf(stderr, "Done.\n");
-//		delete image;
-		// End of testing code
-
 		while (IsAutonomous() && IsEnabled()) {
             /**
              * Do the image capture with the camera and apply the algorithm described above. This
@@ -145,7 +116,7 @@ public:
 			printf("\n");
 			
 			// be sure to delete images after using them
-			/* 
+			
 			delete filteredImage;
 			delete convexHullImage;
 			delete thresholdImage;
@@ -154,7 +125,7 @@ public:
 			delete scores;
 			delete reports;
 			delete image;
-			/* */
+			*/
 
 		}
 		// delete instances of other classes that we utilized

@@ -45,5 +45,6 @@ public:
 	double scoreRectangularity(ParticleAnalysisReport *);
 	double scoreXEdge(BinaryImage *, ParticleAnalysisReport *);
 	double scoreYEdge(BinaryImage *, ParticleAnalysisReport *);
+	void Test(void);
 };
 #endif

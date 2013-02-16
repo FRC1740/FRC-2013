@@ -1,5 +1,7 @@
 #include "WPILib.h"
 #include "math.h"
+#include "Vision/RGBImage.h"
+#include "Vision/BinaryImage.h"
 #include "CameraCode.h"
 
 /**
@@ -145,4 +147,47 @@ double CameraCode::scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report
 	total = 100*total/(averages->rowCount);		//convert to score 0-100
 	imaqDispose(averages);						//let IMAQ dispose of the averages struct
 	return total;
-}		
+}
+
+void CameraCode::Test() {
+	
+	// The following HSV threshold recognizes GREEN 
+	//		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+
+	// Attempting to recognize BLUE 
+	//		Threshold threshold(130, 180, 60, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+
+	// Attempting to recognize AMBER
+	Threshold threshold(0, 90, 127, 255, 127, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+	ParticleFilterCriteria2 criteria[] = {
+			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+	};												//Particle filter criteria, used to filter out small particles
+
+	//		SmartDashboard::PutBoolean("In Teleop", false);
+
+	// The next group of lines are for testing image capture from the Axis 1011
+	printf("initalizing camera\n");
+	//		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
+	ColorImage *image;
+	image = new RGBImage("/amber_image.jpg");		// get the sample image from the cRIO flash
+	//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
+	fprintf(stderr,"Writing raw image... ");
+	image->Write("/raw_image.jpg");
+	fprintf(stderr, "Done.\n");
+	BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the (green/blue/etc) target pixels
+	fprintf(stderr,"Writing threshold image... ");
+	thresholdImage->Write("/threshold.bmp");
+	fprintf(stderr, "Done.\n");
+	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
+	fprintf(stderr,"Writing convex image... ");
+	convexHullImage->Write("/ConvexHull.bmp");
+	fprintf(stderr, "Done.\n");
+	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
+	fprintf(stderr,"Writing filtered image... ");
+	filteredImage->Write("Filtered.bmp");
+	fprintf(stderr, "Done.\n");
+	delete image;
+	// End of testing code
+}
+
+
