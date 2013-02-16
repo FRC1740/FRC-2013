@@ -6,7 +6,7 @@ spikeLifter(lifterSpikePort),
 lifterState(1)
 {
 	minOut = 0.0;   // initalize to reasonable values
-	maxOut = 5.0;
+	maxOut = 6.5;
 }
 
 void Lifter::cycle_linear_actuator(void) {
@@ -14,11 +14,11 @@ void Lifter::cycle_linear_actuator(void) {
 	Lifter::raise();			// Extend
 	printf("Maximus Outpodius (maximum output)\n");
 	Wait(5);
-	maxOut = getInches();
+	maxOut = Lifter::currentVoltage();
 	Lifter::lower();			// Retract
 	printf("Minimus Outpodius (minimum output)\n");
 	Wait(5);
-	minOut = getInches();
+	minOut = Lifter::currentVoltage();
 	Lifter::off();
 	printf("Lifter Tests Complete\n");
 }
@@ -43,27 +43,28 @@ float Lifter::getPercent(){
 		return 0;
 	}
 	else if (Lifter::currentVoltage() > maxOut){
-		return 100;
+		return 1;
 	}
 	else{
-		return Lifter::currentVoltage() / maxOut;
+		return Lifter::currentVoltage() / (maxOut - minOut);
 	}
 }
 float Lifter::getInches(){
-	return Lifter::getPercent() * 6.0;
+	printf("%f\n", Lifter::getPercent());
+	printf("%f\n",Lifter::getPercent() * 6.375);
+	return Lifter::getPercent() * 6.375;
 }
 
 void Lifter::goToInch(float Inches){
 	printf("going to inches\n");
-	float currentInches = Lifter::getInches();
-	while (currentInches > Inches){
+	while (Lifter::getInches() > Inches){
 		Lifter::lower();
 	}
-	while (currentInches < Inches){
+	while (Lifter::getInches() < Inches){
 		Lifter::raise();
 	}
-	printf("done\n!");
 	Lifter::off();
+	printf("done\n!");
 }
 
 Shooter::Shooter(void):

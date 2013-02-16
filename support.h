@@ -25,4 +25,8 @@ public:
 	}
 };
 
+class robotOut {
+	
+};
+
 #endif

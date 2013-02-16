@@ -8,7 +8,7 @@
 #define lowerButton 10
 #define conveyorButton 9
 
-#define inchesTest 3.8
+#define inchesTest 2.6
 class coDriver {
 	Joystick codriverStick; // stick for the co-driver
 	bool previousButtonStateConveyor;
@@ -51,7 +51,6 @@ public:
 		if(buttonPress && (buttonPress != previousButtonStateConveyor)){
 			if (not frisbeeLoader->conveyorState()){
 				frisbeeLoader->activateConveyor();
-				printf("starting the conveyor\n");
 			}
 			else {
 				frisbeeLoader->stopConveyor();
