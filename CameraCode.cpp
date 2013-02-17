@@ -4,6 +4,33 @@
 #include "Vision/BinaryImage.h"
 #include "CameraCode.h"
 
+CameraCode::CameraCode() {
+	fprintf(stderr, "Getting instance of Axis camera object... ");
+	camera = &AxisCamera::GetInstance("10.17.40.11");
+	fprintf(stderr, "done.\n");
+}
+
+void CameraCode::Test() {
+	
+	// Configure Threshold to recognize AMBER
+	Threshold threshold(0, 90, 127, 255, 127, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
+/*
+	ParticleFilterCriteria2 criteria[] = {
+			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+	};												//Particle filter criteria, used to filter out small particles
+*/
+	//ColorImage *image;
+	fprintf(stderr, "Grabbing image from camera... ");
+	camera->WriteBrightness(50);
+	camera->WriteResolution(AxisCamera::kResolution_320x240);
+	camera->WriteCompression(80);
+	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Writing raw image... ");
+	image->Write("/raw_image.jpg");
+	fprintf(stderr, "done.\n");
+}
+
 /**
  * Computes the estimated distance to a target using the height of the particle in the image. For more information and graphics
  * showing the math behind this approach see the Vision Processing section of the ScreenStepsLive documentation.
@@ -149,7 +176,7 @@ double CameraCode::scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report
 	return total;
 }
 
-void CameraCode::Test() {
+void CameraCode::ReadProcessWrite() {
 	
 	// The following HSV threshold recognizes GREEN 
 	//		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
@@ -173,11 +200,11 @@ void CameraCode::Test() {
 	//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
 	fprintf(stderr,"Writing raw image... ");
 	image->Write("/raw_image.jpg");
-	fprintf(stderr, "Done.\n");
+	fprintf(stderr, "done.\n");
 	BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the (green/blue/etc) target pixels
 	fprintf(stderr,"Writing threshold image... ");
 	thresholdImage->Write("/threshold.bmp");
-	fprintf(stderr, "Done.\n");
+	fprintf(stderr, "done.\n");
 	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
 	fprintf(stderr,"Writing convex image... ");
 	convexHullImage->Write("/ConvexHull.bmp");
@@ -185,7 +212,7 @@ void CameraCode::Test() {
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
 	fprintf(stderr,"Writing filtered image... ");
 	filteredImage->Write("Filtered.bmp");
-	fprintf(stderr, "Done.\n");
+	fprintf(stderr, "done.\n");
 	delete image;
 	// End of testing code
 }
