@@ -35,13 +35,14 @@ struct Scores {
 	double yEdge;
 
 };
-
 class CameraCode
 {
 	AxisCamera *camera;
+	Scores *scores;
+	Threshold *threshold;
 	
 public:
-	CameraCode(void);
+	CameraCode(char *);
 	double scoreAspectRatio(BinaryImage *, ParticleAnalysisReport *, bool);
 	double computeDistance(BinaryImage *, ParticleAnalysisReport *, bool);
 	bool scoreCompare(Scores, bool);
@@ -49,6 +50,7 @@ public:
 	double scoreXEdge(BinaryImage *, ParticleAnalysisReport *);
 	double scoreYEdge(BinaryImage *, ParticleAnalysisReport *);
 	void Test(void);
+	void targetImage();
 	void ReadProcessWrite(void);
 };
 #endif

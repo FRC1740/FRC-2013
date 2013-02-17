@@ -4,7 +4,22 @@
 #include "Vision/BinaryImage.h"
 #include "CameraCode.h"
 
-CameraCode::CameraCode() {
+CameraCode::CameraCode(char *colorLED = "amber") {
+
+	if (!strcmp(colorLED, "green")) {
+		// HSV threshold for BLUE: Hue is 130-180
+		threshold = new Threshold(130, 180, 60, 255, 20, 255);
+	} else if (!strcmp(colorLED, "amber")) {
+		// HSV threshold for AMBER: Hue is 0-90
+		Threshold threshold(0, 90, 127, 255, 127, 255);
+	} else if (!strcmp(colorLED, "blue")) {
+		// HSV threshold for GREEN Hue is 60-100
+		Threshold threshold(60, 100, 90, 255, 20, 255);
+	} else {
+		// WHITE
+		Threshold threshold(0, 360, 90, 255, 20, 255);
+	}
+
 	fprintf(stderr, "Getting instance of Axis camera object... ");
 	camera = &AxisCamera::GetInstance("10.17.40.11");
 	fprintf(stderr, "done.\n");
@@ -12,18 +27,8 @@ CameraCode::CameraCode() {
 
 void CameraCode::Test() {
 	
-	// Configure Threshold to recognize AMBER
-	Threshold threshold(0, 90, 127, 255, 127, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-/*
-	ParticleFilterCriteria2 criteria[] = {
-			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-	};												//Particle filter criteria, used to filter out small particles
-*/
-	//ColorImage *image;
+	//ColorImage *image;	// THIS DIDN'T WORK!! NEEDED TO USE HSLImage *
 	fprintf(stderr, "Grabbing image from camera... ");
-	camera->WriteBrightness(50);
-	camera->WriteResolution(AxisCamera::kResolution_320x240);
-	camera->WriteCompression(80);
 	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
 	fprintf(stderr, "done.\n");
 	fprintf(stderr, "Writing raw image... ");
@@ -31,6 +36,83 @@ void CameraCode::Test() {
 	fprintf(stderr, "done.\n");
 }
 
+/**
+  * Do the image capture with the camera and apply the algorithm described above. This
+  * sample will either get images from the camera or from an image file stored in the top
+  * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
+  */
+
+void CameraCode::targetImage() {
+	
+	ParticleFilterCriteria2 criteria[] = {
+			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+	};												//Particle filter criteria, used to filter out small particles
+
+	//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
+
+	fprintf(stderr, "Setting image brightness to 50%... ");
+	camera->WriteBrightness(50);
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Setting image resolution to 320x240... ");
+	camera->WriteResolution(AxisCamera::kResolution_320x240);
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Setting image compression to 75... ");
+	camera->WriteCompression(75);
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Grabbing image from camera... ");
+	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
+	fprintf(stderr, "done.\n");
+	
+	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the green target pixels
+	//thresholdImage->Write("/threshold.bmp");
+	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
+	//convexHullImage->Write("/ConvexHull.bmp");
+	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
+	//filteredImage->Write("Filtered.bmp");
+
+	vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
+	scores = new Scores[reports->size()];
+	
+	// fprintf(stderr,"reports->size = %d\n", reports->size());
+	
+	//Iterate through each particle, scoring it and determining whether it is a target or not
+	for (unsigned i = 0; i < reports->size(); i++) {
+	
+		ParticleAnalysisReport *report = &(reports->at(i));
+		
+		scores[i].rectangularity = CameraCode::scoreRectangularity(report);
+		scores[i].aspectRatioOuter = CameraCode::scoreAspectRatio(filteredImage, report, true);
+		scores[i].aspectRatioInner = CameraCode::scoreAspectRatio(filteredImage, report, false);			
+		scores[i].xEdge = CameraCode::scoreXEdge(thresholdImage, report);
+		scores[i].yEdge = CameraCode::scoreYEdge(thresholdImage, report);
+		
+		if(CameraCode::scoreCompare(scores[i], false))
+		{
+			printf("particle: %d  is a High Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			printf("Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, false));
+		} else if (CameraCode::scoreCompare(scores[i], true)) {
+			printf("particle: %d  is a Middle Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			printf("Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, true));
+		} else {
+			printf("particle: %d  is not a goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+		}
+		printf("rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
+		printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
+	}
+	printf("\n");
+	
+	// be sure to delete images after using them
+	
+	delete filteredImage;
+	delete convexHullImage;
+	delete thresholdImage;
+	
+	//delete allocated reports and Scores objects also
+	delete scores;
+	delete reports;
+	delete image;
+
+}
 /**
  * Computes the estimated distance to a target using the height of the particle in the image. For more information and graphics
  * showing the math behind this approach see the Vision Processing section of the ScreenStepsLive documentation.
@@ -178,14 +260,6 @@ double CameraCode::scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report
 
 void CameraCode::ReadProcessWrite() {
 	
-	// The following HSV threshold recognizes GREEN 
-	//		Threshold threshold(60, 100, 90, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-
-	// Attempting to recognize BLUE 
-	//		Threshold threshold(130, 180, 60, 255, 20, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
-
-	// Attempting to recognize AMBER
-	Threshold threshold(0, 90, 127, 255, 127, 255);	//HSV threshold criteria, ranges are in that order ie. Hue is 60-100
 	ParticleFilterCriteria2 criteria[] = {
 			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 	};												//Particle filter criteria, used to filter out small particles
@@ -201,7 +275,7 @@ void CameraCode::ReadProcessWrite() {
 	fprintf(stderr,"Writing raw image... ");
 	image->Write("/raw_image.jpg");
 	fprintf(stderr, "done.\n");
-	BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the (green/blue/etc) target pixels
+	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the (green/blue/etc) target pixels
 	fprintf(stderr,"Writing threshold image... ");
 	thresholdImage->Write("/threshold.bmp");
 	fprintf(stderr, "done.\n");
