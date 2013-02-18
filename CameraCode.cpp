@@ -22,18 +22,61 @@ CameraCode::CameraCode(char *colorLED = "amber") {
 
 	fprintf(stderr, "Getting instance of Axis camera object... ");
 	camera = &AxisCamera::GetInstance("10.17.40.11");
+	fprintf(stderr, "Setting image brightness to 50%... ");
+	camera->WriteBrightness(50);
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Setting image resolution to 320x240... ");
+	camera->WriteResolution(AxisCamera::kResolution_320x240);
+	fprintf(stderr, "done.\n");
+	fprintf(stderr, "Setting image compression to 75... ");
+	camera->WriteCompression(75);
 	fprintf(stderr, "done.\n");
 }
 
 void CameraCode::Test() {
 	
-	//ColorImage *image;	// THIS DIDN'T WORK!! NEEDED TO USE HSLImage *
+	ParticleFilterCriteria2 criteria[] = {
+			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
+	};												//Particle filter criteria, used to filter out small particles
+
 	fprintf(stderr, "Grabbing image from camera... ");
-	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
+	//ColorImage *image;	// THIS DIDN'T WORK!! NEEDED TO USE HSLImage *
+	HSLImage *image = camera->GetImage();
 	fprintf(stderr, "done.\n");
 	fprintf(stderr, "Writing raw image... ");
 	image->Write("/raw_image.jpg");
 	fprintf(stderr, "done.\n");
+
+	fprintf(stderr,"Writing raw image... ");
+	image->Write("/raw_image.jpg");
+	fprintf(stderr, "done.\n");
+
+	// get just the HSV filtered target pixels
+	fprintf(stderr, "Processing step 1: threshold... ");
+	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the (green/blue/etc) target pixels
+	fprintf(stderr,"Writing to flash... ");
+	thresholdImage->Write("/threshold.bmp");
+	fprintf(stderr, "done.\n");
+
+	// fill in partial and full rectangles
+	fprintf(stderr, "Processing step 2: filling rectangles... ");
+	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
+	fprintf(stderr,"Writing to flash... ");
+	convexHullImage->Write("/ConvexHull.bmp");
+	fprintf(stderr, "done.\n");
+	
+	//Remove small particles
+	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
+	fprintf(stderr,"Writing to flash... ");
+	filteredImage->Write("Filtered.bmp");
+	fprintf(stderr, "done.\n");
+
+	// be sure to delete images after using them
+	
+	delete filteredImage;
+	delete convexHullImage;
+	delete thresholdImage;
+	delete image;
 }
 
 /**
@@ -48,17 +91,6 @@ void CameraCode::targetImage() {
 			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 	};												//Particle filter criteria, used to filter out small particles
 
-	//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
-
-	fprintf(stderr, "Setting image brightness to 50%... ");
-	camera->WriteBrightness(50);
-	fprintf(stderr, "done.\n");
-	fprintf(stderr, "Setting image resolution to 320x240... ");
-	camera->WriteResolution(AxisCamera::kResolution_320x240);
-	fprintf(stderr, "done.\n");
-	fprintf(stderr, "Setting image compression to 75... ");
-	camera->WriteCompression(75);
-	fprintf(stderr, "done.\n");
 	fprintf(stderr, "Grabbing image from camera... ");
 	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
 	fprintf(stderr, "done.\n");
@@ -67,10 +99,12 @@ void CameraCode::targetImage() {
 	fprintf(stderr, "Processing step 1: threshold... ");
 	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
 	fprintf(stderr, "done.\n");
+
 	// fill in partial and full rectangles
 	fprintf(stderr, "Processing step 2: filling rectangles... ");
 	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);
 	fprintf(stderr, "done.\n");
+
 	//Remove small particles
 	fprintf(stderr, "Processing step 3: removing small particles... ");
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);
@@ -79,7 +113,7 @@ void CameraCode::targetImage() {
 	vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 	scores = new Scores[reports->size()];
 	
-	fprintf(stderr,"reports->size = %d\n", reports->size());
+	// fprintf(stderr,"reports->size = %d\n", reports->size());
 	
 	//Iterate through each particle, scoring it and determining whether it is a target or not
 	for (unsigned i = 0; i < reports->size(); i++) {
@@ -112,12 +146,11 @@ void CameraCode::targetImage() {
 	delete filteredImage;
 	delete convexHullImage;
 	delete thresholdImage;
+	delete image;
 	
 	//delete allocated reports and Scores objects also
 	delete scores;
 	delete reports;
-	delete image;
-
 }
 /**
  * Computes the estimated distance to a target using the height of the particle in the image. For more information and graphics
@@ -266,34 +299,6 @@ double CameraCode::scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report
 
 void CameraCode::ReadProcessWrite() {
 	
-	ParticleFilterCriteria2 criteria[] = {
-			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-	};												//Particle filter criteria, used to filter out small particles
-
-	//		SmartDashboard::PutBoolean("In Teleop", false);
-
-	// The next group of lines are for testing image capture from the Axis 1011
-	printf("initalizing camera\n");
-	//		AxisCamera &camera = AxisCamera::GetInstance();	//To use the Axis camera uncomment this line
-	ColorImage *image;
-	image = new RGBImage("/amber_image.jpg");		// get the sample image from the cRIO flash
-	//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
-	fprintf(stderr,"Writing raw image... ");
-	image->Write("/raw_image.jpg");
-	fprintf(stderr, "done.\n");
-	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the (green/blue/etc) target pixels
-	fprintf(stderr,"Writing threshold image... ");
-	thresholdImage->Write("/threshold.bmp");
-	fprintf(stderr, "done.\n");
-	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-	fprintf(stderr,"Writing convex image... ");
-	convexHullImage->Write("/ConvexHull.bmp");
-	fprintf(stderr, "Done.\n");
-	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-	fprintf(stderr,"Writing filtered image... ");
-	filteredImage->Write("Filtered.bmp");
-	fprintf(stderr, "done.\n");
-	delete image;
 	// End of testing code
 }
 
