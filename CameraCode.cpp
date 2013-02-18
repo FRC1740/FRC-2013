@@ -19,18 +19,18 @@ CameraCode::CameraCode(char *colorLED = "amber") {
 		// WHITE
 		threshold = new Threshold(0, 360, 90, 255, 20, 255);
 	}
-
-	fprintf(stderr, "Getting instance of Axis camera object... ");
+	cameraOut = new robotOut;
+	cameraOut->printDebug("Getting instance of Axis camera object... \n", 2);
 	camera = &AxisCamera::GetInstance("10.17.40.11");
-	fprintf(stderr, "Setting image brightness to 50%... ");
+	cameraOut->printDebug("Setting image brightness to 50%... \n", 2);
 	camera->WriteBrightness(50);
-	fprintf(stderr, "done.\n");
-	fprintf(stderr, "Setting image resolution to 320x240... ");
+	cameraOut->printDebug("done \n", 2);
+	cameraOut->printDebug("Setting image resolution to 320x240... \n", 2);
 	camera->WriteResolution(AxisCamera::kResolution_320x240);
-	fprintf(stderr, "done.\n");
-	fprintf(stderr, "Setting image compression to 75... ");
+	cameraOut->printDebug("done \n", 2);
+	cameraOut->printDebug("Setting image compression to 75... ", 2);
 	camera->WriteCompression(75);
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done \n", 2);
 }
 
 void CameraCode::Test() {
@@ -39,31 +39,31 @@ void CameraCode::Test() {
 			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 	};												//Particle filter criteria, used to filter out small particles
 
-	fprintf(stderr, "Grabbing image from camera... ");
+	cameraOut->printDebug("Grabbing image from camera... \n", 2);
 	//ColorImage *image;	// THIS DIDN'T WORK!! NEEDED TO USE HSLImage *
 	HSLImage *image = camera->GetImage();
-	fprintf(stderr, "done.\n");
-	fprintf(stderr, "Writing raw image... ");
+	cameraOut->printDebug("done \n", 2);
+	cameraOut->printDebug("Writing raw image... \n", 2);
 	image->Write("/raw_image.jpg");
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done \n", 2);
 
 	// get just the HSV filtered target pixels
-	fprintf(stderr, "Processing step 1: threshold... ");
+	cameraOut->printDebug("Processing step 1: threshold... \n", 2);
 	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
-	fprintf(stderr,"Writing to flash... ");
+	cameraOut->printDebug("Writing to flash... \n", 2);
 	thresholdImage->Write("/threshold.bmp");
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done \n", 2);
 
 	// fill in partial and full rectangles
-	fprintf(stderr, "Processing step 2: filling rectangles... ");
+	cameraOut->printDebug("Processing step 2: filling rectangles... \n", 2);
 	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-	fprintf(stderr,"Writing to flash... ");
+	cameraOut->printDebug("Writing to flash... \n", 2);
 	convexHullImage->Write("/ConvexHull.bmp");
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done \n", 2);
 	
 	//Remove small particles
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-	fprintf(stderr,"Writing to flash... ");
+	cameraOut->printDebug("Writing to flash... \n", 2);
 	filteredImage->Write("/Filtered.bmp");
 	fprintf(stderr, "done.\n");
 
@@ -87,22 +87,22 @@ void CameraCode::targetImage() {
 			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
 	};												//Particle filter criteria, used to filter out small particles
 
-	fprintf(stderr, "Grabbing image from camera... ");
+	cameraOut->printDebug("Grabbing image from camera... ", 2);
 	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
 	fprintf(stderr, "done.\n");
 	
 	// get just the HSV filtered target pixels
-	fprintf(stderr, "Processing step 1: threshold... ");
+	cameraOut->printDebug("Processing step 1: threshold... ", 2);
 	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
 	fprintf(stderr, "done.\n");
 
 	// fill in partial and full rectangles
-	fprintf(stderr, "Processing step 2: filling rectangles... ");
+	cameraOut->printDebug("Processing step 2: filling rectangles... ", 2);
 	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);
 	fprintf(stderr, "done.\n");
 
 	//Remove small particles
-	fprintf(stderr, "Processing step 3: removing small particles... ");
+	cameraOut->printDebug("Processing step 3: removing small particles... ", 2);
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);
 	fprintf(stderr, "done.\n");
 
@@ -189,7 +189,7 @@ double CameraCode::computeDistance (BinaryImage *image, ParticleAnalysisReport *
 	double rectShort, height;
 	int targetHeight;
 
-	printf("attempting to compute distance");
+	cameraOut->printDebug("attempting to compute distance", 2);
 	imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &rectShort);
 	//using the smaller of the estimated rectangle short side and the bounding rectangle height results in better performance
 	//on skewed rectangles

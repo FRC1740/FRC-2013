@@ -1,5 +1,6 @@
 #include "Loader.h"
 
+
 Loader::Loader(void):
 Belt(beltMotorPort),
 Elevator(elevatorMotorPort),
@@ -41,8 +42,8 @@ void Loader::loaderSequence(void){
 	if (limitConveyor.Get()){
 		Belt.Set(0);
 		SmartDashboard::PutBoolean("Pickup Running", false);
-		Elevator.Set(1);
+		this->activateElevator();
 		Wait(2);
-		Elevator.Set(0);
+		this->stopConveyor();
 	}
 }	

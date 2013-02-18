@@ -1,5 +1,6 @@
 #ifndef _CAMERACODE_H
 #define _CAMERACODE_H
+#include "support.h"
 //Camera constants used for distance calculation
 #define X_IMAGE_RES 320		//X Image resolution in pixels, should be 160, 320 or 640
 //#define VIEW_ANGLE 48		//Axis 206 camera
@@ -37,6 +38,7 @@ struct Scores {
 };
 class CameraCode
 {
+	robotOut *cameraOut;
 	AxisCamera *camera;
 	Scores *scores;
 	Threshold *threshold;

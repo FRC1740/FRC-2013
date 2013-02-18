@@ -5,10 +5,7 @@
 #include "Loader.h"
 #include "CoDriver.h"
 #include "MainDriver.h"
-
-int lifterThread(...);
-
-// Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
+#include "support.h"
 
 /**
  * Sample program to use NIVision to find rectangles in the scene that are illuminated
@@ -43,11 +40,8 @@ class Robot_2013 : public SimpleRobot
 	Shooter *frisbeeShooter;
 	Loader *Sweeper;
 	coDriver *Driver2;
-
-
+	robotOut *mainOut;
 	DriverStationLCD *DsLCD;	
-	
-//	dashboardControl *DBControl;
 
 public:
 	Robot_2013(void) {
@@ -57,24 +51,38 @@ public:
 		frisbeeShooter = new Shooter;
 		Sweeper = new Loader;
 		Driver2 = new coDriver;
+		mainOut = new robotOut;
 		DsLCD = DriverStationLCD::GetInstance();
-//		DBControl = new dashboardControl;
 
 	}
 	static int lifterThread(Robot_2013 *robot){
-		Timer *lifterTimer;
-		lifterTimer = new Timer;
 		while (true){
 			robot->Driver2->initalizeLifter(robot->spikeLifter);
 			robot->Driver2->lifterCheck(robot->spikeLifter);
+			robot->Driver2->goToInchCheck(robot->spikeLifter);
 			Wait(.01);
 		}
 		return false;
 	}
-	
+	static int loaderThread(Robot_2013 *robot){
+		while (true){
+			robot->Driver2->conveyorCheck(robot->Sweeper);
+			robot->Sweeper->loaderSequence();
+			robot->Driver2->fireAtWill(robot->frisbeeShooter, robot->Sweeper);
+			Wait(.01);
+		}
+		return 0;
+	}
 	static int printy(Robot_2013 *robot){
 		while (true){
-			printf("testing testing 123\n");
+			robot->mainOut->printDebug("testing testing 123", 1);
+		}
+		return 0;
+	}
+	
+	static int Notifier(Robot_2013 *robot){
+		while (true){
+			;
 		}
 		return 0;
 	}
@@ -83,15 +91,13 @@ public:
 	 */
 	void Autonomous(void)
 	{	
-		printf("Entering autonomous...\n");
+		mainOut->printDebug("Entering autonomous...\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering autonomous mode");
 		DsLCD->UpdateLCD();
-//		spikeLifter->cycle_linear_actuator();
-		cameraFunctions->Test();
-		cameraFunctions->targetImage();
 		
 		while (IsAutonomous() && IsEnabled()) {
-
+			cameraFunctions->targetImage();
+			Wait(5);
 		}
 		// delete instances of other classes that we utilized
 		delete spikeLifter;
@@ -106,15 +112,15 @@ public:
 
 		
 		// Lets see if i can do something multithreaded
-		Task myTask("thread_test", (FUNCPTR)this->lifterThread);
-		myTask.Start((INT32)this);
-//		DBControl->dashboardOut(1);
-		printf("starting Teleop\n");
+		mainOut->printDebug("starting Teleop\n", 1);
+		Task lifterTask("thread_test", (FUNCPTR)this->lifterThread);
+		lifterTask.Start((INT32)this);
+		Task loaderShooterTask("loader_shooter", (FUNCPTR)this->loaderThread);
+		loaderShooterTask.Start((INT32)this);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Teleop mode");
 		DsLCD->UpdateLCD();
-//		spikeLifter->cycle_linear_actuator(true);
 		Driver1->disableSafety();
-		printf("we are in teleop, accepting joystick input now\n");
+		mainOut->printDebug("Teleop initalziation completed\n", 2);
 		SmartDashboard::PutBoolean("In Teleop", true);
 		
 		while (IsOperatorControl()){
@@ -122,11 +128,11 @@ public:
 			// next we do the checks to see what the codriver is trying to do
 			// all commented out lines have been moved to their own tasks
 //			Driver2->lifterCheck(spikeLifter);
-			Driver2->conveyorCheck(Sweeper);
-			Sweeper->loaderSequence();
-			Driver2->fireAtWill(frisbeeShooter, Sweeper);
+//			Driver2->conveyorCheck(Sweeper);
+//			Sweeper->loaderSequence();
+//			Driver2->fireAtWill(frisbeeShooter, Sweeper);
 //			Driver2->initalizeLifter(spikeLifter);
-			Driver2->goToInchCheck(spikeLifter);
+//			Driver2->goToInchCheck(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
 		delete frisbeeShooter;
@@ -138,13 +144,13 @@ public:
 
 	void Disabled(void)
 	{
-		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
-		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering disabled mode");
+		mainOut->printDebug("I\'m Disabled!!\n", 1); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Disabled");
 		DsLCD->UpdateLCD();
 	}
 	void RobotInit(void){
-		printf("I\'m Init`ed\n");
-		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Initalization mode");
+		mainOut->printDebug("I\'m Init`ed\n", 1);
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Initalizing");
 		DsLCD->UpdateLCD();
 	}
 
