@@ -11,13 +11,13 @@ CameraCode::CameraCode(char *colorLED = "amber") {
 		threshold = new Threshold(130, 180, 60, 255, 20, 255);
 	} else if (!strcmp(colorLED, "amber")) {
 		// HSV threshold for AMBER: Hue is 0-90
-		Threshold threshold(0, 90, 127, 255, 127, 255);
+		threshold = new Threshold(0, 90, 127, 255, 127, 255);
 	} else if (!strcmp(colorLED, "blue")) {
 		// HSV threshold for GREEN Hue is 60-100
-		Threshold threshold(60, 100, 90, 255, 20, 255);
+		threshold = new Threshold(60, 100, 90, 255, 20, 255);
 	} else {
 		// WHITE
-		Threshold threshold(0, 360, 90, 255, 20, 255);
+		threshold = new Threshold(0, 360, 90, 255, 20, 255);
 	}
 
 	fprintf(stderr, "Getting instance of Axis camera object... ");
@@ -47,13 +47,9 @@ void CameraCode::Test() {
 	image->Write("/raw_image.jpg");
 	fprintf(stderr, "done.\n");
 
-	fprintf(stderr,"Writing raw image... ");
-	image->Write("/raw_image.jpg");
-	fprintf(stderr, "done.\n");
-
 	// get just the HSV filtered target pixels
 	fprintf(stderr, "Processing step 1: threshold... ");
-	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the (green/blue/etc) target pixels
+	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
 	fprintf(stderr,"Writing to flash... ");
 	thresholdImage->Write("/threshold.bmp");
 	fprintf(stderr, "done.\n");
@@ -68,7 +64,7 @@ void CameraCode::Test() {
 	//Remove small particles
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
 	fprintf(stderr,"Writing to flash... ");
-	filteredImage->Write("Filtered.bmp");
+	filteredImage->Write("/Filtered.bmp");
 	fprintf(stderr, "done.\n");
 
 	// be sure to delete images after using them
