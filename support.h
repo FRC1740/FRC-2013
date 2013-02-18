@@ -23,6 +23,10 @@ public:
 			return true;
 		}
 	}
+	void Restart(void){
+		startTime = time();
+		timerStarted = true;
+	}
 };
 
 class robotOut {

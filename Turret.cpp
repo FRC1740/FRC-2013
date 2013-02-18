@@ -9,18 +9,19 @@ lifterState(1)
 	maxOut = 6.5;
 }
 
-void Lifter::cycle_linear_actuator(void) {
+int Lifter::cycle_linear_actuator(...) {
 	printf("Calibrating Lifter\n");
-	Lifter::raise();			// Extend
+	this->raise();			// Extend
 	printf("Maximus Outpodius (maximum output)\n");
 	Wait(5);
-	maxOut = Lifter::currentVoltage();
-	Lifter::lower();			// Retract
+	maxOut = this->currentVoltage();
+	this->lower();			// Retract
 	printf("Minimus Outpodius (minimum output)\n");
 	Wait(5);
-	minOut = Lifter::currentVoltage();
-	Lifter::off();
+	minOut = this->currentVoltage();
+	this->off();
 	printf("Lifter Tests Complete\n");
+	return 0;
 }
 
 void Lifter::raise(void){
@@ -74,7 +75,7 @@ Shooter::Shooter(void):
 }
 void Shooter::Fire(void){ // fire
 	Wait(.5);
-	Torquey.Set(1);
+	Torquey.Set(-1);
 	Quickly.Set(1);
 
 }

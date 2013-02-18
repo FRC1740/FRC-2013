@@ -22,7 +22,7 @@ float Loader::conveyorState(void){
 }
 
 void Loader::activateElevator(void){
-	Elevator.Set(1);
+	Elevator.Set(-1);
 }
 
 void Loader::stopElevator(void){

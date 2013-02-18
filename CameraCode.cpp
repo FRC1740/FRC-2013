@@ -63,17 +63,23 @@ void CameraCode::targetImage() {
 	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
 	fprintf(stderr, "done.\n");
 	
-	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);	// get just the green target pixels
-	//thresholdImage->Write("/threshold.bmp");
-	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-	//convexHullImage->Write("/ConvexHull.bmp");
-	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-	//filteredImage->Write("Filtered.bmp");
+	// get just the HSV filtered target pixels
+	fprintf(stderr, "Processing step 1: threshold... ");
+	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
+	fprintf(stderr, "done.\n");
+	// fill in partial and full rectangles
+	fprintf(stderr, "Processing step 2: filling rectangles... ");
+	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);
+	fprintf(stderr, "done.\n");
+	//Remove small particles
+	fprintf(stderr, "Processing step 3: removing small particles... ");
+	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);
+	fprintf(stderr, "done.\n");
 
 	vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 	scores = new Scores[reports->size()];
 	
-	// fprintf(stderr,"reports->size = %d\n", reports->size());
+	fprintf(stderr,"reports->size = %d\n", reports->size());
 	
 	//Iterate through each particle, scoring it and determining whether it is a target or not
 	for (unsigned i = 0; i < reports->size(); i++) {

@@ -6,6 +6,8 @@
 #include "CoDriver.h"
 #include "MainDriver.h"
 
+int lifterThread(...);
+
 // Note: Currently the code regarding to dashboard is commented out line #s are: 56 154
 
 /**
@@ -36,96 +38,59 @@ class Robot_2013 : public SimpleRobot
 	
 	Scores *scores; //defined in CameraCode.h
 	CameraCode *cameraFunctions;
+	mainDriver *Driver1;
+	Lifter *spikeLifter;
+	Shooter *frisbeeShooter;
+	Loader *Sweeper;
+	coDriver *Driver2;
+
+
+	DriverStationLCD *DsLCD;	
+	
 //	dashboardControl *DBControl;
 
 public:
 	Robot_2013(void) {
-		cameraFunctions = new CameraCode;
+		cameraFunctions = new CameraCode("amber");
+		Driver1 = new mainDriver;
+		spikeLifter = new Lifter;
+		frisbeeShooter = new Shooter;
+		Sweeper = new Loader;
+		Driver2 = new coDriver;
+		DsLCD = DriverStationLCD::GetInstance();
 //		DBControl = new dashboardControl;
 
 	}
-
+	static int lifterThread(Robot_2013 *robot){
+		Timer *lifterTimer;
+		lifterTimer = new Timer;
+		while (true){
+			robot->Driver2->initalizeLifter(robot->spikeLifter);
+			robot->Driver2->lifterCheck(robot->spikeLifter);
+			Wait(.01);
+		}
+		return false;
+	}
+	
+	static int printy(Robot_2013 *robot){
+		while (true){
+			printf("testing testing 123\n");
+		}
+		return 0;
+	}
 	/**
 	 * Image processing code to identify 2013 Vision targets
 	 */
 	void Autonomous(void)
 	{	
 		printf("Entering autonomous...\n");
-		// instantiate lifter for aiming
-		Lifter *spikeLifter;
-		spikeLifter = new Lifter;
-		// instantiate shooter for firing 
-		Shooter *frisbeeShooter;
-		frisbeeShooter = new Shooter;
-
-		spikeLifter->cycle_linear_actuator();
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering autonomous mode");
+		DsLCD->UpdateLCD();
+//		spikeLifter->cycle_linear_actuator();
 		cameraFunctions->Test();
+		cameraFunctions->targetImage();
 		
 		while (IsAutonomous() && IsEnabled()) {
-            /**
-             * Do the image capture with the camera and apply the algorithm described above. This
-             * sample will either get images from the camera or from an image file stored in the top
-             * level directory in the flash memory on the cRIO. The file name in this case is "testImage.jpg"
-             */
-			
-			/* 
-			ColorImage *image;
-			
-			//image = new RGBImage("/blueImage.jpg");		// get the sample image from the cRIO flash
-
-			//camera.GetImage(image);				//To get the images from the camera comment the line above and uncomment this one
-			//image->Write("/raw_image.jpg");
-			//fprintf(stderr,"Got an image from the camera: %d px x %d px\n",image->GetHeight(), image->GetWidth());
-			
-			BinaryImage *thresholdImage = image->ThresholdHSV(threshold);	// get just the green target pixels
-			//thresholdImage->Write("/threshold.bmp");
-			BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);  // fill in partial and full rectangles
-			//convexHullImage->Write("/ConvexHull.bmp");
-			BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
-			//filteredImage->Write("Filtered.bmp");
-
-			vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
-			scores = new Scores[reports->size()];
-			
-			// fprintf(stderr,"reports->size = %d\n", reports->size());
-			
-			//Iterate through each particle, scoring it and determining whether it is a target or not
-			for (unsigned i = 0; i < reports->size(); i++) {
-			
-				ParticleAnalysisReport *report = &(reports->at(i));
-				
-				scores[i].rectangularity = cameraFunctions->scoreRectangularity(report);
-				scores[i].aspectRatioOuter = cameraFunctions->scoreAspectRatio(filteredImage, report, true);
-				scores[i].aspectRatioInner = cameraFunctions->scoreAspectRatio(filteredImage, report, false);			
-				scores[i].xEdge = cameraFunctions->scoreXEdge(thresholdImage, report);
-				scores[i].yEdge = cameraFunctions->scoreYEdge(thresholdImage, report);
-				
-				if(cameraFunctions->scoreCompare(scores[i], false))
-				{
-					printf("particle: %d  is a High Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
-					printf("Distance: %f \n", cameraFunctions->computeDistance(thresholdImage, report, false));
-				} else if (cameraFunctions->scoreCompare(scores[i], true)) {
-					printf("particle: %d  is a Middle Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
-					printf("Distance: %f \n", cameraFunctions->computeDistance(thresholdImage, report, true));
-				} else {
-					printf("particle: %d  is not a goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
-				}
-				printf("rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
-				printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
-			}
-			printf("\n");
-			
-			// be sure to delete images after using them
-			
-			delete filteredImage;
-			delete convexHullImage;
-			delete thresholdImage;
-			
-			//delete allocated reports and Scores objects also
-			delete scores;
-			delete reports;
-			delete image;
-			*/
 
 		}
 		// delete instances of other classes that we utilized
@@ -138,26 +103,15 @@ public:
 	 */
 	void OperatorControl(void)
 	{
-		mainDriver *Driver1;
-		Driver1 = new mainDriver;
+
 		
-		// instantiate lifter for aiming
-		Lifter *spikeLifter;
-		spikeLifter = new Lifter;
-	
-		// instantiate shooter for firing 
-		Shooter *frisbeeShooter;
-		frisbeeShooter = new Shooter;
-		
-		// conveyor stuff
-		Loader *Sweeper;
-		Sweeper = new Loader;
-		
-		// Instantiate the co-driver object
-		coDriver *Driver2;
-		Driver2 = new coDriver;
+		// Lets see if i can do something multithreaded
+		Task myTask("thread_test", (FUNCPTR)this->lifterThread);
+		myTask.Start((INT32)this);
 //		DBControl->dashboardOut(1);
 		printf("starting Teleop\n");
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Teleop mode");
+		DsLCD->UpdateLCD();
 //		spikeLifter->cycle_linear_actuator(true);
 		Driver1->disableSafety();
 		printf("we are in teleop, accepting joystick input now\n");
@@ -166,11 +120,12 @@ public:
 		while (IsOperatorControl()){
 			Driver1->teleopDrive();
 			// next we do the checks to see what the codriver is trying to do
-			Driver2->lifterCheck(spikeLifter);
+			// all commented out lines have been moved to their own tasks
+//			Driver2->lifterCheck(spikeLifter);
 			Driver2->conveyorCheck(Sweeper);
 			Sweeper->loaderSequence();
 			Driver2->fireAtWill(frisbeeShooter, Sweeper);
-			Driver2->initalizeLifter(spikeLifter);
+//			Driver2->initalizeLifter(spikeLifter);
 			Driver2->goToInchCheck(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
@@ -184,11 +139,18 @@ public:
 	void Disabled(void)
 	{
 		printf("I\'m Disabled!!\n"); // This code runs whenever the robot is disabled, even if the printf buffer sometimes forgets to flush
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering disabled mode");
+		DsLCD->UpdateLCD();
 	}
 	void RobotInit(void){
 		printf("I\'m Init`ed\n");
+		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Initalization mode");
+		DsLCD->UpdateLCD();
 	}
+
+
 };
+
 
 START_ROBOT_CLASS(Robot_2013);
 
