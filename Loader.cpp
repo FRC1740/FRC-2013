@@ -9,8 +9,10 @@ limitElevator(limitElevatorPort)
 {
 }
 void Loader::activateConveyor(void) {
-	if (not checkLimitConveyor()){
+	printf("you moron\n");
+	if (not this->checkLimitConveyor()){
 		Belt.Set(-1);
+		printf("starting the loader\n");
 		SmartDashboard::PutBoolean("Pickup Running", true);
 	}
 }
@@ -24,10 +26,12 @@ float Loader::conveyorState(void){
 
 void Loader::activateElevator(void){
 	Elevator.Set(-1);
+	SmartDashboard::PutBoolean("Auger Motor", true);
 }
 
 void Loader::stopElevator(void){
 	Elevator.Set(0);
+	SmartDashboard::PutBoolean("Auger Motor", false);
 }
 
 float Loader::elevatorState(void){
@@ -40,10 +44,13 @@ bool Loader::checkLimitConveyor(void){
 
 void Loader::loaderSequence(void){
 	if (limitConveyor.Get()){
-		Belt.Set(0);
+		SmartDashboard::PutBoolean("Frisbee Recieved", true);
+		this->stopConveyor();
+		printf("stopping the loader\n");
 		SmartDashboard::PutBoolean("Pickup Running", false);
 		this->activateElevator();
 		Wait(2);
 		this->stopConveyor();
+		SmartDashboard::PutBoolean("Frisbee Recieved", false);
 	}
 }	

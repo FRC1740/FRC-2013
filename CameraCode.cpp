@@ -6,13 +6,13 @@
 
 CameraCode::CameraCode(char *colorLED = "amber") {
 
-	if (!strcmp(colorLED, "green")) {
+	if (!strcmp(colorLED, "blue")) {
 		// HSV threshold for BLUE: Hue is 130-180
 		threshold = new Threshold(130, 180, 60, 255, 20, 255);
 	} else if (!strcmp(colorLED, "amber")) {
 		// HSV threshold for AMBER: Hue is 0-90
 		threshold = new Threshold(0, 90, 127, 255, 127, 255);
-	} else if (!strcmp(colorLED, "blue")) {
+	} else if (!strcmp(colorLED, "green")) {
 		// HSV threshold for GREEN Hue is 60-100
 		threshold = new Threshold(60, 100, 90, 255, 20, 255);
 	} else {
@@ -65,7 +65,7 @@ void CameraCode::Test() {
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);	//Remove small particles
 	cameraOut->printDebug("Writing to flash... \n", 2);
 	filteredImage->Write("/Filtered.bmp");
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done\n", 3);
 
 	// be sure to delete images after using them
 	
@@ -89,22 +89,22 @@ void CameraCode::targetImage() {
 
 	cameraOut->printDebug("Grabbing image from camera... ", 2);
 	HSLImage *image = camera->GetImage();				//To get the images from the camera comment the line above and uncomment this one
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done\n", 3);
 	
 	// get just the HSV filtered target pixels
 	cameraOut->printDebug("Processing step 1: threshold... ", 2);
 	BinaryImage *thresholdImage = image->ThresholdHSV(*threshold);
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done\n", 3);
 
 	// fill in partial and full rectangles
 	cameraOut->printDebug("Processing step 2: filling rectangles... ", 2);
 	BinaryImage *convexHullImage = thresholdImage->ConvexHull(false);
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done\n", 3);
 
 	//Remove small particles
 	cameraOut->printDebug("Processing step 3: removing small particles... ", 2);
 	BinaryImage *filteredImage = convexHullImage->ParticleFilter(criteria, 1);
-	fprintf(stderr, "done.\n");
+	cameraOut->printDebug("done\n", 3);
 
 	vector<ParticleAnalysisReport> *reports = filteredImage->GetOrderedParticleAnalysisReports();  //get a particle analysis report for each particle
 	scores = new Scores[reports->size()];
@@ -121,19 +121,28 @@ void CameraCode::targetImage() {
 		scores[i].aspectRatioInner = CameraCode::scoreAspectRatio(filteredImage, report, false);			
 		scores[i].xEdge = CameraCode::scoreXEdge(thresholdImage, report);
 		scores[i].yEdge = CameraCode::scoreYEdge(thresholdImage, report);
-		
+		char theOutput [64];
 		if(CameraCode::scoreCompare(scores[i], false))
 		{
-			printf("particle: %d  is a High Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
-			printf("Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, false));
+			sprintf(theOutput, "particle: %d  is a High Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			cameraOut->printDebug(theOutput, 2);
+			sprintf(theOutput, "Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, false));
+			cameraOut->printDebug(theOutput, 2);
+			cameraOut->printDebug("We found a high goal\n", 1);
 		} else if (CameraCode::scoreCompare(scores[i], true)) {
-			printf("particle: %d  is a Middle Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
-			printf("Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, true));
+			sprintf(theOutput, "particle: %d  is a Middle Goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			cameraOut->printDebug(theOutput, 2);
+			sprintf(theOutput, "Distance: %f \n", CameraCode::computeDistance(thresholdImage, report, true));
+			cameraOut->printDebug(theOutput, 2);
+			cameraOut->printDebug("We found a middle goal\n", 1);
 		} else {
-			printf("particle: %d  is not a goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			sprintf(theOutput, "particle: %d  is not a goal  centerX: %f  centerY: %f \n", i, report->center_mass_x_normalized, report->center_mass_y_normalized);
+			cameraOut->printDebug(theOutput, 2);
 		}
-		printf("rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
-		printf("ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
+		sprintf(theOutput, "rect: %f  ARinner: %f \n", scores[i].rectangularity, scores[i].aspectRatioInner);
+		cameraOut->printDebug(theOutput, 2);
+		sprintf(theOutput, "ARouter: %f  xEdge: %f  yEdge: %f  \n", scores[i].aspectRatioOuter, scores[i].xEdge, scores[i].yEdge);
+		cameraOut->printDebug(theOutput, 2);
 	}
 	printf("\n");
 	

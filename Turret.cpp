@@ -51,8 +51,6 @@ float Lifter::getPercent(){
 	}
 }
 float Lifter::getInches(){
-	printf("%f\n", Lifter::getPercent());
-	printf("%f\n",Lifter::getPercent() * 6.375);
 	return Lifter::getPercent() * 6.375;
 }
 
@@ -74,7 +72,7 @@ Shooter::Shooter(void):
 {
 }
 void Shooter::Fire(void){ // fire
-	Wait(.5);
+	SmartDashboard::PutBoolean("Shooter Motors", true);
 	Torquey.Set(-1);
 	Quickly.Set(1);
 
@@ -82,5 +80,6 @@ void Shooter::Fire(void){ // fire
 void Shooter::stopFiring(void){ // Ok we are stopping firing now
 	Torquey.Set(0);
 	Quickly.Set(0);
+	SmartDashboard::PutBoolean("Shooter Motors", false);
 }
 
