@@ -49,20 +49,60 @@ public:
 	Robot_2013(void) {
 		cameraFunctions = new CameraCode("amber");
 		Driver1 = new mainDriver;
+		Driver2 = new coDriver;
 		spikeLifter = new Lifter;
 		frisbeeShooter = new Shooter;
 		Sweeper = new Loader;
-		Driver2 = new coDriver;
 		mainOut = new robotOut;
 		DsLCD = DriverStationLCD::GetInstance();
-
-
+	}
+	~Robot_2013(void) {
+		delete cameraFunctions;
+		delete Driver1;
+		delete Driver2;
+		delete spikeLifter;
+		delete frisbeeShooter;
+		delete Sweeper;
+		delete mainOut;
+		delete DsLCD;
+	}
+	static int notifierTask(Robot_2013 *robot){
+		while (true){
+			for (int differentJoysticks = 1; differentJoysticks < 4; differentJoysticks++){
+				for (int count = 1; count < 12; count++){
+					char location [5];
+					bool buttonValue;
+					if (differentJoysticks == 1){
+						buttonValue = robot->Driver1->returnLeftJoystick(count);
+					}
+					if (differentJoysticks == 2){
+						buttonValue = robot->Driver1->returnRightJoystick(count);
+					}
+					if (differentJoysticks == 3){
+						buttonValue = robot->Driver2->returnJoystick(count);
+					}
+					sprintf(location, "%d_%d", differentJoysticks, count);
+					SmartDashboard::PutBoolean(location, buttonValue);
+				}
+			}
+			SmartDashboard::PutNumber("Y-Axis1", robot->Driver1->Lefty());
+			SmartDashboard::PutNumber("X-Axis1", robot->Driver1->Leftx());
+			SmartDashboard::PutNumber("Y-Axis2", robot->Driver1->Righty());
+			SmartDashboard::PutNumber("X-Axis2", robot->Driver1->Rightx());
+			SmartDashboard::PutNumber("Right Drive Motor", robot->Driver1->Lefty());
+			SmartDashboard::PutNumber("Left Drive Motor", robot->Driver1->Righty());
+			SmartDashboard::PutNumber("Throttle2", robot->Driver1->rightThrottle());
+			SmartDashboard::PutNumber("Throttle1", robot->Driver1->leftThrottle());
+			Wait(.02);
+		}
+		return 0;
 	}
 	static int lifterThread(Robot_2013 *robot){
 		while (true){
-//			robot->Driver2->initalizeLifter(robot->spikeLifter);
 			robot->Driver2->lifterCheck(robot->spikeLifter);
-//			robot->Driver2->goToInchCheck(robot->spikeLifter);
+			// do not uncomment follow lines, it will hit the hard limit and damage the robot
+			//robot->Driver2->goToInchCheck(robot->spikeLifter);
+			//robot->Driver2->initalizeLifter(robot->spikeLifter);
 			Wait(.05);
 		}
 		return false;
@@ -93,12 +133,11 @@ public:
 		DsLCD->UpdateLCD();
 		
 		while (IsAutonomous() && IsEnabled()) {
-			cameraFunctions->targetImage();
-			Wait(5);
+			//cameraFunctions->targetImage();
+			Wait(.25);
+			fprintf(stderr, "linear actuator %3.2f\n", spikeLifter->getInches());
+			SmartDashboard::PutNumber("Actuator Distance", spikeLifter->getInches());
 		}
-		// delete instances of other classes that we utilized
-		delete spikeLifter;
-		delete frisbeeShooter;
 	}
 
 	/**
@@ -108,13 +147,19 @@ public:
 	{
 		// Lets see if i can do something multithreaded
 		mainOut->printDebug("starting Teleop\n", 1);
-		Task lifterTask("thread_test", (FUNCPTR)this->lifterThread);
+		char name[30];
+		sprintf(name, "lifterThread-%d", GetFPGATime());
+		printf(name);
+		Wait(.25);
+		Task lifterTask(name, (FUNCPTR)this->lifterThread);
 		mainOut->printDebug("starting Teleop again\n", 1);
 		lifterTask.Start((INT32)this);
 		mainOut->printDebug("starting Teleop again again\n", 1);
-		Task loaderShooterTask("loader_shooter", (FUNCPTR)this->loaderThread);
+		sprintf(name, "loaderShooterThread-%d", GetFPGATime());
+		Task loaderShooterTask(name, (FUNCPTR)this->loaderThread);
 		loaderShooterTask.Start((INT32)this);
-		Task notificationTask("dashboard_notify", (FUNCPTR)this->notifierTask);
+		sprintf(name, "notificationThread-%d", GetFPGATime());
+		Task notificationTask(name, (FUNCPTR)this->notifierTask);
 		notificationTask.Start((INT32)this);		
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Teleop mode");
 		DsLCD->UpdateLCD();
@@ -134,14 +179,13 @@ public:
 //			Driver2->goToInchCheck(spikeLifter);
 			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
 		}
+		/*
 		delete frisbeeShooter;
 		delete spikeLifter;
 		delete Driver1;
 		delete Driver2;
 		delete Sweeper;
-		lifterTask.Stop();
-		loaderShooterTask.Stop();
-		notificationTask.Stop();
+		*/
 	}
 
 	void Disabled(void)
@@ -155,37 +199,6 @@ public:
 		mainOut->printDebug("I\'m Init`ed\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Initalizing");
 		DsLCD->UpdateLCD();
-	}
-	static int notifierTask(Robot_2013 *robot){
-		while (true){
-			for (int differentJoysticks = 1; differentJoysticks < 4; differentJoysticks++){
-				for (int count = 1; count < 12; count++){
-					char location [5];
-					bool buttonValue;
-					if (differentJoysticks == 1){
-						buttonValue = robot->Driver1->returnLeftJoystick(count);
-					}
-					if (differentJoysticks == 2){
-						buttonValue = robot->Driver1->returnRightJoystick(count);
-					}
-					if (differentJoysticks == 3){
-						buttonValue = robot->Driver2->returnJoystick(count);
-					}
-					sprintf(location, "%d_%d", differentJoysticks, count);
-					SmartDashboard::PutBoolean(location, buttonValue);
-				}
-			}
-			SmartDashboard::PutNumber("Y-Axis1", robot->Driver1->Lefty());
-			SmartDashboard::PutNumber("X-Axis1", robot->Driver1->Leftx());
-			SmartDashboard::PutNumber("Y-Axis2", robot->Driver1->Righty());
-			SmartDashboard::PutNumber("X-Axis2", robot->Driver1->Rightx());
-			SmartDashboard::PutNumber("Right Drive Motor", robot->Driver1->Lefty());
-			SmartDashboard::PutNumber("Left Drive Motor", robot->Driver1->Righty());
-			SmartDashboard::PutNumber("Throttle1", robot->Driver1->rightThrottle());
-			SmartDashboard::PutNumber("Throttle2", robot->Driver1->leftThrottle());
-			Wait(.02);
-		}
-		return 0;
 	}
 
 };

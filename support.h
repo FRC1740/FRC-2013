@@ -50,14 +50,14 @@ public:
 			}
 		}
 		else if (message_type == EMERGENCY){
-			printf("[ERROR] %s", output);
+			fprintf(stderr, "[ERROR] %s", output);
 		}
 		else if ((message_type == DEBUG || message_type == SAME_LINE_DEBUG) && DEBUG_MODE){
 			if (message_type == SAME_LINE_DEBUG){
-				printf(output);
+				fprintf(stderr, output);
 			}
 			else{
-				printf("[DEBUG] %s", output);
+				fprintf(stderr, "[DEBUG] %s", output);
 			}
 		}
 	}

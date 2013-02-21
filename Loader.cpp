@@ -46,7 +46,6 @@ void Loader::loaderSequence(void){
 	if (limitConveyor.Get()){
 		SmartDashboard::PutBoolean("Frisbee Recieved", true);
 		this->stopConveyor();
-		printf("stopping the loader\n");
 		SmartDashboard::PutBoolean("Pickup Running", false);
 		this->activateElevator();
 		Wait(2);
