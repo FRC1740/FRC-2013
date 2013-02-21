@@ -1,9 +1,11 @@
 #ifndef CODRIVER_H_
 #define CODRIVER_H_
 
+
 #include "WPILib.h"
 #include "Loader.h"
 #include "Turret.h"
+#include "support.h"
 #define codriverStickPort 3
 
 #define Trigger 1
@@ -16,6 +18,7 @@ class coDriver {
 	Joystick codriverStick; // stick for the co-driver
 	bool previousButtonStateConveyor;
 	bool isShooting;
+	robotOut *coDriverOut;
 public:
 	coDriver(void);
 	void lifterCheck(Lifter *spikeLifter);

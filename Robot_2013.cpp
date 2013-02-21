@@ -12,15 +12,8 @@
  *	Ultimate Ascent Code
  *	Programming Staff:
  *	Brian Healy: Captain and Labview / TI84 guy
- *	Kevin Konrad: Not-Captain and Python Guy / C++ guy
+ *	Kevin Konrad: Not-Captain and Python / C++ guy
  *	Charles Estabooks: Programming Mentor and C/C++ Guy
- *	
- *	Our code is free for the use of anyone that wants it :D
- *	
- *	
- *	ToDo:
- *	We should probably make a task deticated to updating all values in the driver station (even in autonomous), get rid of the bits scattered in the code
- *	change where we are creating the tasks so that it starts all of them in initalization and just does a check to see if we are in teleop in the task perhaps?
  *	
  */
 
@@ -37,6 +30,9 @@ class Robot_2013 : public SimpleRobot
 	coDriver *Driver2; // The functions that deal with the co driver and he one joystick
 	robotOut *mainOut; // The function that we are using to process output
 	DriverStationLCD *DsLCD; // Used to put values in the User Messages box on the driver station
+	Task *notificationTask;
+	Task *loaderShooterTask;
+	Task *lifterTask;
 
 	
 
@@ -93,45 +89,53 @@ public:
 			SmartDashboard::PutNumber("Left Drive Motor", robot->Driver1->Righty());
 			SmartDashboard::PutNumber("Throttle2", robot->Driver1->rightThrottle());
 			SmartDashboard::PutNumber("Throttle1", robot->Driver1->leftThrottle());
+			robot->spikeLifter->updateDashboard();
 			Wait(.02);  // lets not starve the crio doing tasks
 		}
 		return 0;
 	}
 	static int lifterThread(Robot_2013 *robot){
 		while (true){
-			// this doesnt have to be in its own task anymore, however it isnt hurting anything
-			robot->Driver2->lifterCheck(robot->spikeLifter); // check if codriver has hit a button to control the actuator (spike)
-			// do not uncomment follow lines, it will hit the hard limit and damage the robot
-			//robot->Driver2->goToInchCheck(robot->spikeLifter);
-			//robot->Driver2->initalizeLifter(robot->spikeLifter);
-			Wait(.05);
+			while (robot->IsOperatorControl()){
+				// this doesnt have to be in its own task anymore, however it isnt hurting anything
+				robot->Driver2->lifterCheck(robot->spikeLifter); // check if codriver has hit a button to control the actuator (spike)
+				// do not uncomment follow lines, it will hit the hard limit and damage the robot
+				//robot->Driver2->goToInchCheck(robot->spikeLifter);
+				//robot->Driver2->initalizeLifter(robot->spikeLifter);
+				Wait(.05);
+			}
+			Wait(.1);
 		}
 		return false;
 	}
 	static int loaderThread(Robot_2013 *robot){
 		while (true){
-			robot->Driver2->conveyorCheck(robot->Sweeper); // does the driver want to start a conveyor
-			robot->Sweeper->loaderSequence();  // did we hit the limit switch to grab a frisbee?
-			robot->Driver2->fireAtWill(robot->frisbeeShooter, robot->Sweeper); // does the codriver want to fire?
-			Wait(.05);
+			while (robot->IsOperatorControl()){
+				robot->Driver2->conveyorCheck(robot->Sweeper); // does the driver want to start a conveyor
+				robot->Sweeper->loaderSequence();  // did we hit the limit switch to grab a frisbee?
+				robot->Driver2->fireAtWill(robot->frisbeeShooter, robot->Sweeper); // does the codriver want to fire?
+				Wait(.05);
+			}
+		Wait(.1);
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Image processing code to identify 2013 Vision targets
 	 */
 	void Autonomous(void)
 	{	
+		startTasks();
 		mainOut->printDebug("Entering autonomous...\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering autonomous");  // print to the dashboard and console
 		DsLCD->UpdateLCD();
 		
 		while (IsAutonomous() && IsEnabled()) {
 			cameraFunctions->targetImage();  // find all of the targets
-			Wait(2);
-			SmartDashboard::PutNumber("Actuator Distance", spikeLifter->getInches());
+			Wait(.01);
 		}
+		stopTasks();
 	}
 
 	/**
@@ -141,26 +145,12 @@ public:
 	{
 		// Lets see if i can do something multithreaded, this needs to be organized badly
 		mainOut->printDebug("starting Teleop\n", 1);
-		char name[30];
-		sprintf(name, "lifterThread-%d", GetFPGATime());
-		printf(name);
-		Wait(.25);
-		Task lifterTask(name, (FUNCPTR)this->lifterThread);
-		mainOut->printDebug("starting Teleop again\n", 1);
-		lifterTask.Start((INT32)this);
-		mainOut->printDebug("starting Teleop again again\n", 1);
-		sprintf(name, "loaderShooterThread-%d", GetFPGATime());
-		Task loaderShooterTask(name, (FUNCPTR)this->loaderThread);
-		loaderShooterTask.Start((INT32)this);
-		sprintf(name, "notificationThread-%d", GetFPGATime());
-		Task notificationTask(name, (FUNCPTR)this->notifierTask);
-		notificationTask.Start((INT32)this);		
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Teleop mode");
 		DsLCD->UpdateLCD();
 		Driver1->disableSafety();
 		mainOut->printDebug("Teleop initalziation completed\n", 2);
 		SmartDashboard::PutBoolean("In Teleop", true);
-		
+		startTasks();
 		while (IsOperatorControl()){
 			Driver1->teleopDrive();
 			// next we do the checks to see what the codriver is trying to do
@@ -171,15 +161,9 @@ public:
 //			Driver2->fireAtWill(frisbeeShooter, Sweeper);
 //			Driver2->initalizeLifter(spikeLifter);
 //			Driver2->goToInchCheck(spikeLifter);
-			Wait(0.005);				// wait for a motor update time changing from 5ms to .1 second
+			Wait(0.005);
 		}
-		/*
-		delete frisbeeShooter;
-		delete spikeLifter;
-		delete Driver1;
-		delete Driver2;
-		delete Sweeper;
-		*/
+		stopTasks();
 	}
 
 	void Disabled(void)
@@ -195,6 +179,23 @@ public:
 		mainOut->printDebug("I\'m Init`ed\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Initalizing");
 		DsLCD->UpdateLCD();
+	}
+	void startTasks(void){
+		char name[30];
+		sprintf(name, "notificationThread-%d", GetFPGATime());
+		notificationTask = new Task(name, (FUNCPTR)this->notifierTask);
+		notificationTask->Start((INT32)this);	
+		sprintf(name, "lifterThread-%d", GetFPGATime());
+		lifterTask = new Task(name, (FUNCPTR)this->lifterThread);
+		lifterTask->Start((INT32)this);
+		sprintf(name, "loaderShooterThread-%d", GetFPGATime());
+		loaderShooterTask = new Task(name, (FUNCPTR)this->loaderThread);
+		loaderShooterTask->Start((INT32)this);	
+	}
+	void stopTasks(void){
+		notificationTask->Stop();
+		lifterTask->Stop();
+		loaderShooterTask->Stop();
 	}
 
 };

@@ -55,7 +55,6 @@ float Lifter::getInches(){
 }
 
 void Lifter::goToInch(float Inches){
-	printf("going to inches\n");
 	while (Lifter::getInches() > Inches){
 		Lifter::lower();
 	}
@@ -64,6 +63,10 @@ void Lifter::goToInch(float Inches){
 	}
 	Lifter::off();
 	printf("done\n!");
+}
+
+void Lifter::updateDashboard(void){
+	SmartDashboard::PutNumber("Actuator Distance", this->getInches());
 }
 
 Shooter::Shooter(void):

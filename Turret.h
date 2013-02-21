@@ -26,6 +26,7 @@ public:
 	float getPercent();
 	float getInches();
 	void goToInch(float);
+	void updateDashboard(void);
 };
 
 class Shooter {

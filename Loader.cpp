@@ -9,10 +9,8 @@ limitElevator(limitElevatorPort)
 {
 }
 void Loader::activateConveyor(void) {
-	printf("you moron\n");
 	if (not this->checkLimitConveyor()){
 		Belt.Set(-1);
-		printf("starting the loader\n");
 		SmartDashboard::PutBoolean("Pickup Running", true);
 	}
 }

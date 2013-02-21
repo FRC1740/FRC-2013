@@ -5,29 +5,30 @@ coDriver::coDriver(void):
 {	
 	previousButtonStateConveyor = false;
 	isShooting = false;
+	coDriverOut = new robotOut;
 }
 
 void coDriver::lifterCheck(Lifter *spikeLifter){
-	SmartDashboard::PutNumber("Actuator Distance", spikeLifter->getInches());
+	char outBuffer [40];
 	if(codriverStick.GetRawButton(lowerButton)){
 		if (spikeLifter->currentState() != Relay::kReverse){
 			spikeLifter->lower();
-			printf("retracting the relay\n");
-			printf("We are starting at state %f\n", spikeLifter->getInches());
+			sprintf(outBuffer, "We are starting at state %f\n", spikeLifter->getInches());
+			coDriverOut->printDebug(outBuffer, 2);
 		}
 	}
 	else if (codriverStick.GetRawButton(raiseButton)){
 		if (spikeLifter->currentState() != Relay::kForward){
 			spikeLifter->raise();
-			printf("extending the relay\n");
-			printf("We are starting at state %f\n", spikeLifter->getInches());
+			sprintf(outBuffer, "We are starting at state %f\n", spikeLifter->getInches());
+			coDriverOut->printDebug(outBuffer, 2);
 		}
 	}
 	else{
 		if (spikeLifter->currentState() != Relay::kOff){
 			spikeLifter->off();
-			printf("stopping the relay\n");
-			printf("We are ending at state %f\n", spikeLifter->getInches());
+			sprintf(outBuffer, "We are ending at state %f\n", spikeLifter->getInches());
+			coDriverOut->printDebug(outBuffer, 2);
 		}
 	}
 }
@@ -52,7 +53,7 @@ void coDriver::conveyorCheck(Loader *frisbeeLoader) {
 void coDriver::fireAtWill(Shooter *frisbeeShooter, Loader *frisbeeLoader){
 	bool buttonPress = codriverStick.GetRawButton(Trigger);
 	if (buttonPress && (isShooting != buttonPress)){
-		printf("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\rGUNS ARE ACTIVE!!!!!!!!!!!!!\n");
+		coDriverOut->printDebug("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\rGUNS ARE ACTIVE!!!!!!!!!!!!!\n", 2);
 		frisbeeShooter->Fire();
 		frisbeeLoader->activateElevator();
 		isShooting = true;
@@ -78,7 +79,6 @@ float coDriver::returnJoystick(int port){
 
 void coDriver::goToInchCheck(Lifter *spikeLifter){
 	if (codriverStick.GetRawButton(8)){
-		printf("he hit the button!\n");
 		spikeLifter->goToInch(inchesTest);
 	}
 }
