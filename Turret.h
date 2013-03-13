@@ -16,7 +16,6 @@ class Lifter{
 public:
 
 	Lifter(void);
-//	virtual void Run();
 	int cycle_linear_actuator(...);
 	void raise(void);
 	void lower(void);

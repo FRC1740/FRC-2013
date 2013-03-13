@@ -186,6 +186,10 @@ SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.o : $(PRJ_
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
+SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Support.o : $(PRJ_ROOT_DIR)/Support.cpp $(FORCE_FILE_BUILD)
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o : $(PRJ_ROOT_DIR)/Turret.cpp $(FORCE_FILE_BUILD)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
@@ -196,6 +200,7 @@ OBJECTS_SimpleTemplate_partialImage = SimpleTemplate_partialImage/$(MODE_DIR)/Ob
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Loader.o \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/MainDriver.o \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.o \
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Support.o \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.o
 
 SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage.o : $(OBJECTS_SimpleTemplate_partialImage)
@@ -212,7 +217,7 @@ force :
 
 DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CameraCode.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/CoDriver.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/DashBoardControl.d \
 	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Loader.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/MainDriver.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Robot_2013.d \
-	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.d
+	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Support.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/Robot_2013/Turret.d
 -include $(DEP_FILES)
 
 
