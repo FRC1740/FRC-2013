@@ -69,20 +69,20 @@ void Lifter::updateDashboard(void){
 	SmartDashboard::PutNumber("Actuator Distance", this->getInches());
 }
 
-Shooter::Shooter(void):
-				Torquey(torqueyMotorPort),
-				Quickly(quickMotorPort)
+Shooter::Shooter(void)
 {
+	Torquey = new Victor(torqueyMotorPort);
+	Quickly = new Victor(quickMotorPort);
 }
 void Shooter::Fire(void){ // fire
 	SmartDashboard::PutBoolean("Shooter Motors", true);
-	Torquey.Set(-1);
-	Quickly.Set(1);
+	Torquey->Set(-1);
+	Quickly->Set(1);
 
 }
 void Shooter::stopFiring(void){ // Ok we are stopping firing now
-	Torquey.Set(0);
-	Quickly.Set(0);
+	Torquey->Set(0);
+	Quickly->Set(0);
 	SmartDashboard::PutBoolean("Shooter Motors", false);
 }
 

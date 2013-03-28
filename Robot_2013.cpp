@@ -33,26 +33,27 @@ class Robot_2013 : public SimpleRobot
 	Task *notificationTask;
 	Task *loaderShooterTask;
 	Task *lifterTask;
+	Victor *leftDrive;
+	Victor *rightDrive;
 
 	
-
+// we disabled the camera for now
 public:
 	Robot_2013(void) {
 		// These lines create a new object of the pointers that we created above
-		cameraFunctions = new CameraCode("amber");
-		Driver1 = new mainDriver;
-		Driver2 = new coDriver;
+//		cameraFunctions = new CameraCode("amber");
 		spikeLifter = new Lifter;
 		frisbeeShooter = new Shooter;
 		Sweeper = new Loader;
 		mainOut = new robotOut;
+		leftDrive = new Victor(leftDrivePort);
+		rightDrive = new Victor(rightDrivePort);
 		DsLCD = DriverStationLCD::GetInstance();
 	}
+	// ok the constructor and destructor for driver1 driver2 are moved 
 	~Robot_2013(void) {
 		// and these lines delete the functions for a nice cleanup 
-		delete cameraFunctions;
-		delete Driver1;
-		delete Driver2;
+//		delete cameraFunctions;
 		delete spikeLifter;
 		delete frisbeeShooter;
 		delete Sweeper;
@@ -130,6 +131,15 @@ public:
 		mainOut->printDebug("Entering autonomous...\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering autonomous");  // print to the dashboard and console
 		DsLCD->UpdateLCD();
+		leftDrive->Set(1);
+		rightDrive->Set(-1); // fix the speeds later
+		Wait(1);
+		leftDrive->Set(0);
+		rightDrive->Set(0);
+		Wait(.5);
+		frisbeeShooter->Fire();
+		Wait(5);
+		frisbeeShooter->stopFiring();
 		
 		while (IsAutonomous() && IsEnabled()) {
 //			cameraFunctions->targetImage();  // find all of the targets
@@ -140,11 +150,13 @@ public:
 	}
 
 	/**
-	 * Runs the motors with arcade steering. 
+	 * Runs the motors with tank drive steering. 
 	 */
 	void OperatorControl(void)
 	{
 		// Lets see if i can do something multithreaded, this needs to be organized badly
+		Driver1 = new mainDriver;
+		Driver2 = new coDriver;
 		mainOut->printDebug("starting Teleop\n", 1);
 		DsLCD->PrintfLine(DsLCD->kUser_Line1, "Entering Teleop mode");
 		DsLCD->UpdateLCD();
@@ -165,6 +177,8 @@ public:
 			Wait(0.005);
 		}
 		stopTasks();
+		delete Driver1;
+		delete Driver2;
 	}
 
 	void Disabled(void)

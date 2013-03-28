@@ -29,8 +29,8 @@ public:
 };
 
 class Shooter {
-	Victor Torquey;
-	Victor Quickly;
+	Victor *Torquey;
+	Victor *Quickly;
 public:	
 	Shooter(void);
 	void Fire(void); // fire
