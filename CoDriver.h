@@ -11,7 +11,7 @@
 #define Trigger 1
 #define raiseButton 11
 #define lowerButton 10
-#define conveyorButton 9
+#define conveyorButton 3
 #define inchesTest 2.6
 
 class coDriver {

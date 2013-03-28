@@ -132,9 +132,10 @@ public:
 		DsLCD->UpdateLCD();
 		
 		while (IsAutonomous() && IsEnabled()) {
-			cameraFunctions->targetImage();  // find all of the targets
+//			cameraFunctions->targetImage();  // find all of the targets
 			Wait(.01);
 		}
+
 		stopTasks();
 	}
 
