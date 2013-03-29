@@ -2,7 +2,7 @@
 #include "MainDriver.h"
 
 mainDriver::mainDriver(void):
-myRobot(rightDrivePort, leftDrivePort),	// these must be initialized in the same order
+myRobot(leftDrivePort, rightDrivePort),	// these must be initialized in the same order
 leftStick(leftStickPort),		// as they are declared above.
 rightStick(rightStickPort)
 {
@@ -10,13 +10,16 @@ rightStick(rightStickPort)
 	myRobot.SetSafetyEnabled(false);
 }
 void mainDriver::teleopDrive(void){
-	myRobot.TankDrive(leftStick, rightStick, true); // Third argument squares the inputs, which is better for percise control
+	myRobot.TankDrive(-leftStick.GetY(), -rightStick.GetY(), true); // Third argument squares the inputs, which is better for percise control
 }
 void mainDriver::disableSafety(void){
 	myRobot.SetSafetyEnabled(false);
 }
 void mainDriver::killDrive(void){
 	myRobot.StopMotor();
+}
+void mainDriver::Go(float speed){
+	myRobot.Drive(speed, 0.0);
 }
 double mainDriver::Lefty(void){
 	return leftStick.GetY();

@@ -13,6 +13,7 @@ class mainDriver {
 	Joystick rightStick; // right joystick
 public:
 	mainDriver(void);
+	void Go(float);
 	void teleopDrive(void);
 	void disableSafety(void);
 	void killDrive(void);
@@ -22,8 +23,8 @@ public:
 	double Rightx(void);
 	double leftThrottle(void);
 	double rightThrottle(void);
-	float returnLeftJoystick(int port);
-	float returnRightJoystick(int port);
+	float returnLeftJoystick(int);
+	float returnRightJoystick(int);
 
 };
 #endif

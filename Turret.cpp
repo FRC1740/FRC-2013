@@ -78,8 +78,8 @@ void Shooter::Fire(void){ // fire
 	SmartDashboard::PutBoolean("Shooter Motors", true);
 	Torquey->Set(-1);
 	Quickly->Set(1);
-
 }
+
 void Shooter::stopFiring(void){ // Ok we are stopping firing now
 	Torquey->Set(0);
 	Quickly->Set(0);
