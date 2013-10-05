@@ -55,12 +55,12 @@ void coDriver::fireAtWill(Shooter *frisbeeShooter, Loader *frisbeeLoader){
 	if (buttonPress && (isShooting != buttonPress)){
 		coDriverOut->printDebug("EMERGENCY!!! \rCLEAR THE AREA!!!!!!\rGUNS ARE ACTIVE!!!!!!!!!!!!!\n", 2);
 		frisbeeShooter->Fire();
-		frisbeeLoader->activateElevator();
+//		frisbeeLoader->activateElevator();
 		isShooting = true;
 	}
 	else if (not buttonPress){
 		frisbeeShooter->stopFiring();
-		frisbeeLoader->stopElevator();
+//		frisbeeLoader->stopElevator();
 		isShooting = false;
 	}
 

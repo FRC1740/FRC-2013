@@ -113,8 +113,8 @@ public:
 	static int loaderThread(Robot_2013 *robot){
 		while (true){
 			while (robot->IsOperatorControl()){
-				robot->Driver2->conveyorCheck(robot->Sweeper); // does the driver want to start a conveyor
-				robot->Sweeper->loaderSequence();  // did we hit the limit switch to grab a frisbee?
+//				robot->Driver2->conveyorCheck(robot->Sweeper); // does the driver want to start a conveyor
+//				robot->Sweeper->loaderSequence();  // did we hit the limit switch to grab a frisbee?
 				robot->Driver2->fireAtWill(robot->frisbeeShooter, robot->Sweeper); // does the codriver want to fire?
 				Wait(.05);
 			}
@@ -140,7 +140,7 @@ public:
 //		leftDrive->Set(1);
 //		rightDrive->Set(-1); // fix the speeds later
 		Driver1->Go(1.0);
-		Wait(1);
+		Wait(.75);
 //		leftDrive->Set(0);
 //		rightDrive->Set(0);
 		Driver1->killDrive();
