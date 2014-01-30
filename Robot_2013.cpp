@@ -140,13 +140,13 @@ public:
 //		leftDrive->Set(1);
 //		rightDrive->Set(-1); // fix the speeds later
 		Driver1->Go(1.0);
-		Wait(.75);
+		Wait(.6);
 //		leftDrive->Set(0);
 //		rightDrive->Set(0);
 		Driver1->killDrive();
 		Wait(.5);
-		Sweeper->activateElevator();
-		frisbeeShooter->Fire();
+//		Sweeper->activateElevator();
+//		frisbeeShooter->Fire();
 		Wait(5);
 		Sweeper->stopElevator();
 		frisbeeShooter->stopFiring();
@@ -203,13 +203,14 @@ public:
 	}
 	void startTasks(void){
 		char name[30];
-		sprintf(name, "notificationThread-%d", GetFPGATime());
+		sprintf(name, "notificationThread-%ld", GetFPGATime());
 		notificationTask = new Task(name, (FUNCPTR)this->notifierTask);
 		notificationTask->Start((INT32)this);	
-		sprintf(name, "lifterThread-%d", GetFPGATime());
+		
+		sprintf(name, "lifterThread-%ld", GetFPGATime());
 		lifterTask = new Task(name, (FUNCPTR)this->lifterThread);
 		lifterTask->Start((INT32)this);
-		sprintf(name, "loaderShooterThread-%d", GetFPGATime());
+		sprintf(name, "loaderShooterThread-%ld", GetFPGATime());
 		loaderShooterTask = new Task(name, (FUNCPTR)this->loaderThread);
 		loaderShooterTask->Start((INT32)this);	
 	}

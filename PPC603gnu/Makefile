@@ -32,7 +32,7 @@ MODE_DIR := NonDebug
 endif
 OBJ_DIR := .
 WS_ROOT_DIR := C:/Users/Hjax/Documents/Robotics
-PRJ_ROOT_DIR := $(WS_ROOT_DIR)/Robot_2013
+PRJ_ROOT_DIR := $(WS_ROOT_DIR)/Robotics/robot_2013
 
 
 
