@@ -4,6 +4,7 @@
 #include "Vision/BinaryImage.h"
 #include "CameraCode.h"
 
+// CRE: Let's use the camera for something useful in 2015!!!
 CameraCode::CameraCode(char *colorLED = "amber") {
 
 	if (!strcmp(colorLED, "blue")) {
